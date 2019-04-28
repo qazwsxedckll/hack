@@ -4,11 +4,14 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <algorithm>
+#include <unordered_map>
 
 using std::endl;
 using std::cin;
 using std::cout;
 using std::string;
+using std::unordered_map;
 
 enum CmdType { A_COMMAND, C_COMMAND, L_COMMAND };
 
@@ -34,6 +37,7 @@ public:
 private:
     std::ifstream file;
     string current_cmd;
+    unordered_map<char, CmdType> cmd_map;
 };
 #endif
 
