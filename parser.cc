@@ -98,6 +98,13 @@ string Parser::jump()
 
 string Parser::symbol()
 {
-    return current_cmd.substr(1);
+    if (commandType() == A_COMMAND) {
+        return current_cmd.substr(1);
+    } else if (commandType() == L_COMMAND) {
+        return current_cmd.substr(1, current_cmd.size() - 2);
+    } else {
+        cout << "Parser::symbol: not A or L command" << endl;
+        exit(0);
+    }
 }
 
