@@ -12,8 +12,7 @@ int main(int argc, char* argv[])
     if (argc < 2 || argc > 3) {
         cout << "Usage: " << argv[0] << " <input_file.asm> <(optional) output_file.hack>" << endl;
         exit(0);
-    }
-    else {
+    } else {
         input_file = argv[1];
         output_file = input_file.substr(0, input_file.length() - 4) + ".hack";
 
