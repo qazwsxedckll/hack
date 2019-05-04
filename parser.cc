@@ -40,7 +40,7 @@ void Parser::advance()
         }
         cmd_found = !current_line.empty();
     }
-    current_cmd = std::move(current_line);
+    current_cmd = current_line;
 }
 
 CmdType Parser::commandType()
