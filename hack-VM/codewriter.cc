@@ -155,9 +155,6 @@ void CodeWriter::writePushPop(const CmdType& command, const string& segment, int
             << "@R15" << endl
             << "A=M" << endl
             << "M=D" << endl;
-    } else {
-        cout << "CodeWriter::writePushPop: Unknown command type" << endl;
-        exit(1);
     }
 }
 
@@ -167,19 +164,19 @@ void CodeWriter::writeLabel(const string& label)
         cout << "CodeWriter::writeLable: Label starts with digit" << endl;
         exit(1);
     }
-    file_ << "(L" << label << ")" << endl;
+    file_ << "(L_" << label << ")" << endl;
 }
 
 void CodeWriter::writeGoto(const string& label)
 {
-    file_ << "@L" << label << endl
+    file_ << "@L_" << label << endl
         << "0;JMP" << endl;
 }
 
 void CodeWriter::writeIf(const string& label)
 {
     popUnitary_();
-    file_ << "@L" << label << endl
+    file_ << "@L_" << label << endl
         << "D;JNE" << endl;
 }
 
@@ -197,10 +194,8 @@ void CodeWriter::popUnitary_()
 
 void CodeWriter::popBinary_()
 {
+    popUnitary_();
     file_ << "@SP" << endl
-        << "AM=M-1" << endl
-        << "D=M" << endl
-        << "@SP" << endl
         << "A=M-1" << endl;
 }
 

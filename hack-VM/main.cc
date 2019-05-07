@@ -15,6 +15,12 @@ void ProcessFile(CodeWriter& writer, const string& file_path)
             writer.writeArithmetic(parser.arg1());
         } else if (cmd_type == C_PUSH || cmd_type == C_POP) {
             writer.writePushPop(cmd_type, parser.arg1(), parser.arg2());
+        } else if (cmd_type == C_LABLE) {
+            writer.writeLabel(parser.arg1());
+        } else if (cmd_type == C_IF) {
+            writer.writeIf(parser.arg1());
+        } else if (cmd_type == C_GOTO) {
+            writer.writeGoto(parser.arg1());
         }
     }
 }

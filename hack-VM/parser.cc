@@ -20,6 +20,8 @@ Parser::Parser(const string& s) : file(s)
     cmd_map["push"] = C_PUSH;
     cmd_map["pop"] = C_POP;
     cmd_map["label"] = C_LABLE;
+    cmd_map["if-goto"] = C_IF;
+    cmd_map["goto"] = C_GOTO;
 }
 
 bool Parser::hasMoreCommands()
@@ -74,7 +76,8 @@ string Parser::arg1()
 
 int Parser::arg2()
 {
-    string::size_type space_pos = current_cmd.find_last_of(" ");
-    return stoi(current_cmd.substr(space_pos + 1, current_cmd.size() - space_pos));
+    string::size_type end_pos = current_cmd.find_last_not_of(" ");
+    string::size_type space_pos = current_cmd.find_last_of(" ", end_pos);
+    return stoi(current_cmd.substr(space_pos + 1, end_pos - space_pos));
 }
 
