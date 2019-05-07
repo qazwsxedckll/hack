@@ -19,6 +19,7 @@ Parser::Parser(const string& s) : file(s)
     cmd_map["not"] = C_ARITHMATIC;
     cmd_map["push"] = C_PUSH;
     cmd_map["pop"] = C_POP;
+    cmd_map["label"] = C_LABLE;
 }
 
 bool Parser::hasMoreCommands()
@@ -53,8 +54,7 @@ CmdType Parser::commandType()
     if (cmd_map.find(prefix) != cmd_map.end()) {
         return cmd_map[prefix];
     }
-    cout << current_cmd << endl;
-    cout << "Invalid syntax: Parser::commandType" << endl;
+    cout << "Parser::commandType: Invalid syntax" << endl;
     exit(1);
 }
 
@@ -63,7 +63,7 @@ string Parser::arg1()
     if (commandType() == C_ARITHMATIC) {
         return current_cmd;
     } else if (commandType() == C_RETURN) {
-        cout << "Invalid syntax: parser::arg1::called with C_RETURN" << endl;
+        cout << "Parser::arg1: Invalid syntax: Called with C_RETURN" << endl;
         exit(1);
     } else {
         string::size_type first_space = current_cmd.find_first_of(" ");

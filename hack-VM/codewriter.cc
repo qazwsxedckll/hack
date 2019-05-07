@@ -19,115 +19,53 @@ void CodeWriter::setFileName(const string& filename)
 void CodeWriter::writeArithmetic(const string& command)
 {
     if (command.compare("add") == 0) {
-        file_ << "@SP" << endl
-            << "AM=M-1" << endl
-            << "D=M" << endl
-            << "@SP" << endl
-            << "A=M-1" << endl
-            << "M=D+M" << endl;
-    }
-    if (command.compare("sub") == 0) {
-        file_ << "@SP" << endl
-            << "AM=M-1" << endl
-            << "D=M" << endl
-            << "@SP" << endl
-            << "A=M-1" << endl
-            << "M=M-D" << endl;
-    }
-    if (command.compare("neg") == 0) {
+        popBinary_();
+        file_ << "M=D+M" << endl;
+    } else if (command.compare("sub") == 0) {
+        popBinary_();
+        file_ << "M=M-D" << endl;
+    } else if (command.compare("neg") == 0) {
         file_ << "@SP" << endl
             << "A=M-1" << endl
             << "M=-M" << endl;
-    }
-    if (command.compare("and") == 0) {
-        file_ << "@SP" << endl
-            << "AM=M-1" << endl
-            << "D=M" << endl
-            << "@SP" << endl
-            << "A=M-1" << endl
-            << "M=D&M" << endl;
-    }
-    if (command.compare("or") == 0) {
-        file_ << "@SP" << endl
-            << "AM=M-1" << endl
-            << "D=M" << endl
-            << "@SP" << endl
-            << "A=M-1" << endl
-            << "M=D|M" << endl;
-    }
-    if (command.compare("not") == 0) {
+    } else if (command.compare("and") == 0) {
+        popBinary_();
+        file_ << "M=D&M" << endl;
+    } else if (command.compare("or") == 0) {
+        popBinary_();
+        file_ << "M=D|M" << endl;
+    } else if (command.compare("not") == 0) {
         file_ << "@SP" << endl
             << "A=M-1" << endl
             << "M=!M" << endl;
-    }
-
-    static int eq = 1;
-    if (command.compare("eq") == 0) {
-        file_ << "@SP" << endl
-            << "AM=M-1" << endl
-            << "D=M" << endl
-            << "@SP" << endl
-            << "A=M-1" << endl
-            << "D=D-M" << endl
-            << "@EQ" << eq << endl
-            << "D;JEQ" << endl
-            << "@SP" << endl
-            << "A=M-1" << endl
-            << "M=0" << endl
-            << "@EQEND" << eq << endl
-            << "0;JMP" << endl
-            << "(EQ" << eq << ")" << endl
-            << "@SP" << endl
-            << "A=M-1" << endl
-            << "M=-1" << endl
-            << "(EQEND" << eq << ")" << endl;
-        eq++;
-    }
-
-    static int gt = 1;
-    if (command.compare("gt") == 0) {
-        file_ << "@SP" << endl
-            << "AM=M-1" << endl
-            << "D=M" << endl
-            << "@SP" << endl
-            << "A=M-1" << endl
-            << "D=D-M" << endl
-            << "@GT" << gt << endl
-            << "D;JLT" << endl
+    } else {
+        static int jmp = 1;
+        string condition;
+        if (command.compare("eq") == 0) {
+            condition = "D;JEQ";
+        } else if (command.compare("gt") == 0) {
+            condition = "D;JLT";
+        } else if (command.compare("lt") == 0) {
+            condition = "D;JGT";
+        } else {
+            cout << "CodeWriter:;writeArithmetic: Invalid syntax" << endl;
+            exit(1);
+        }
+        popBinary_();
+        file_ << "D=D-M" << endl
+            << "@JMP" << jmp << endl
+            << condition << endl
             << "@SP" << endl
             << "A=M-1" << endl
             << "M=0" << endl
-            << "@GTEND" << gt << endl
+            << "@JMPEND" << jmp << endl
             << "0;JMP" << endl
-            << "(GT" << gt << ")" << endl
+            << "(JMP" << jmp << ")" << endl
             << "@SP" << endl
             << "A=M-1" << endl
             << "M=-1" << endl
-            << "(GTEND" << gt << ")" << endl;
-        gt++;
-    }
-
-    static int lt = 1;
-    if (command.compare("lt") == 0) {
-        file_ << "@SP" << endl
-            << "AM=M-1" << endl
-            << "D=M" << endl
-            << "@SP" << endl
-            << "A=M-1" << endl
-            << "D=D-M" << endl
-            << "@LT" << lt << endl
-            << "D;JGT" << endl
-            << "@SP" << endl
-            << "A=M-1" << endl
-            << "M=0" << endl
-            << "@LTEND" << lt << endl
-            << "0;JMP" << endl
-            << "(LT" << lt << ")" << endl
-            << "@SP" << endl
-            << "A=M-1" << endl
-            << "M=-1" << endl
-            << "(LTEND" << lt << ")" << endl;
-        lt++;
+            << "(JMPEND" << jmp << ")" << endl;
+        jmp++;
     }
 }
 
@@ -136,116 +74,142 @@ void CodeWriter::writePushPop(const CmdType& command, const string& segment, int
     if (command == C_PUSH) {
         if (segment.compare("constant") == 0){
             file_ << "@" << index << endl
-                << "D=A" << endl
-                << "@SP" <<  endl
-                << "A=M" << endl
-                << "M=D" <<  endl
-                << "@SP" << endl
-                << "M=M+1" << endl;
-            return;
-        }
-        if (segment.compare("static") == 0) {
+                << "D=A" << endl;
+        } else if (segment.compare("static") == 0) {
             file_ << "@" << file_name_prefix_ << "." << index << endl
-                << "D=M" << endl
-                << "@SP" <<  endl
-                << "A=M" << endl
-                << "M=D" <<  endl
-                << "@SP" << endl
-                << "M=M+1" << endl;
-            return;
-        }
-
-        if (segment.compare("local") == 0) {
-            file_ << "@LCL" << endl
+                << "D=M" << endl;
+        } else {
+            if (segment.compare("local") == 0) {
+                file_ << "@LCL" << endl
+                    << "D=M" << endl;
+            } else if (segment.compare("argument") == 0) {
+                file_ << "@ARG" << endl
+                    << "D=M" << endl;
+            } else if (segment.compare("this") == 0) {
+                file_ << "@THIS" << endl
+                    << "D=M" << endl;
+            } else if (segment.compare("that") == 0) {
+                file_ << "@THAT" << endl
+                    << "D=M" << endl;
+            } else if (segment.compare("temp") == 0) {
+                file_ << "@R5" << endl
+                    << "D=A" << endl;
+            } else if (segment.compare("pointer") == 0) {
+                file_ << "@R3" << endl
+                    << "D=A" << endl;
+            } else {
+                cout << "CodeWriter::writePushPop: Invalid syntax in push" << endl;
+                exit(1);
+            }
+            file_ << "@" << index << endl
+                << "A=D+A" << endl
                 << "D=M" << endl;
         }
-        if (segment.compare("argument") == 0) {
-            file_ << "@ARG" << endl
-                << "D=M" << endl;
-        }
-        if (segment.compare("this") == 0) {
-            file_ << "@THIS" << endl
-                << "D=M" << endl;
-        }
-        if (segment.compare("that") == 0) {
-            file_ << "@THAT" << endl
-                << "D=M" << endl;
-        }
-        if (segment.compare("temp") == 0) {
-            file_ << "@R5" << endl
-                << "D=A" << endl;
-        }
-        if (segment.compare("pointer") == 0) {
-            file_ << "@R3" << endl
-                << "D=A" << endl;
-        }
-        //pushstack
-        file_ << "@" << index << endl
-            << "A=D+A" << endl
-            << "D=M" << endl
-            << "@SP" <<  endl
-            << "A=M" << endl
-            << "M=D" <<  endl
-            << "@SP" << endl
-            << "M=M+1" << endl;
-    }
-
-    if (command == C_POP) {
-        file_ << "@SP" << endl
-            << "AM=M-1" << endl
-            << "D=M" << endl
-            << "@R14" << endl
+        pushStack_();
+    }else if (command == C_POP) {
+        popUnitary_();
+        file_ << "@R14" << endl
             << "M=D" << endl;
+
         if (segment.compare("local") == 0) {
             file_ << "@LCL" << endl
-                << "D=M" << endl;
-        }
-        if (segment.compare("argument") == 0) {
-            file_ << "@ARG" << endl
-                << "D=M" << endl;
-        }
-        if (segment.compare("this") == 0) {
-            file_ << "@THIS" << endl
-                << "D=M" << endl;
-        }
-        if (segment.compare("that") == 0) {
-            file_ << "@THAT" << endl
-                << "D=M" << endl;
-        }
-        if (segment.compare("temp") == 0) {
-            file_ << "@R5" << endl
-                << "D=A" << endl;
-        }
-        if (segment.compare("pointer") == 0) {
-            file_ << "@R3" << endl
-                << "D=A" << endl;
-        }
-        if (segment.compare("static") == 0) {
-            file_ << "@" << file_name_prefix_ << "." << index << endl
-                << "D=A" << endl
-                << "@R15" << endl
-                << "M=D" << endl
-                << "@R14" << endl
                 << "D=M" << endl
-                << "@R15" << endl
-                << "A=M" << endl
-                << "M=D" << endl;
-            return;
+                << "@" << index << endl
+                << "D=D+A" << endl;
+        } else if (segment.compare("argument") == 0) {
+            file_ << "@ARG" << endl
+                << "D=M" << endl
+                << "@" << index << endl
+                << "D=D+A" << endl;
+        } else if (segment.compare("this") == 0) {
+            file_ << "@THIS" << endl
+                << "D=M" << endl
+                << "@" << index << endl
+                << "D=D+A" << endl;
+        } else if (segment.compare("that") == 0) {
+            file_ << "@THAT" << endl
+                << "D=M" << endl
+                << "@" << index << endl
+                << "D=D+A" << endl;
+        } else if (segment.compare("temp") == 0) {
+            file_ << "@R5" << endl
+                << "D=A" << endl
+                << "@" << index << endl
+                << "D=D+A" << endl;
+        } else if (segment.compare("pointer") == 0) {
+            file_ << "@R3" << endl
+                << "D=A" << endl
+                << "@" << index << endl
+                << "D=D+A" << endl;
+        } else if (segment.compare("static") == 0) {
+            file_ << "@" << file_name_prefix_ << "." << index << endl
+                << "D=A" << endl;
+        } else {
+            cout << "CodeWriter::writePushPop: Invalid syntax in pop" << endl;
+            exit(1);
         }
-        file_ << "@" << index << endl
-            << "D=D+A" << endl
-            << "@R15" << endl
+        file_ << "@R15" << endl
             << "M=D" << endl
             << "@R14" << endl
             << "D=M" << endl
             << "@R15" << endl
             << "A=M" << endl
             << "M=D" << endl;
+    } else {
+        cout << "CodeWriter::writePushPop: Unknown command type" << endl;
+        exit(1);
     }
+}
+
+void CodeWriter::writeLabel(const string& label)
+{
+    if (isdigit(label[0])) {
+        cout << "CodeWriter::writeLable: Label starts with digit" << endl;
+        exit(1);
+    }
+    file_ << "(L" << label << ")" << endl;
+}
+
+void CodeWriter::writeGoto(const string& label)
+{
+    file_ << "@L" << label << endl
+        << "0;JMP" << endl;
+}
+
+void CodeWriter::writeIf(const string& label)
+{
+    popUnitary_();
+    file_ << "@L" << label << endl
+        << "D;JNE" << endl;
 }
 
 void CodeWriter::close()
 {
     file_.close();
+}
+
+void CodeWriter::popUnitary_()
+{
+    file_ << "@SP" << endl
+        << "AM=M-1" << endl
+        << "D=M" << endl;
+}
+
+void CodeWriter::popBinary_()
+{
+    file_ << "@SP" << endl
+        << "AM=M-1" << endl
+        << "D=M" << endl
+        << "@SP" << endl
+        << "A=M-1" << endl;
+}
+
+void CodeWriter::pushStack_()
+{
+    file_ << "@SP" << endl
+        << "A=M" << endl
+        << "M=D" << endl
+        << "@SP" << endl
+        << "M=M+1" << endl;
 }
 
