@@ -2,18 +2,21 @@
 
 void CodeWriter::setFileName(const string& filename)
 {
-    if (file_) {
-        file_.close();
-    }
-    file_.open(filename);
     string::size_type slash_pos, dot_pos;
     slash_pos = filename.find_last_of("/");
     dot_pos = filename.find_last_of(".");
     file_name_prefix_ = filename.substr(slash_pos + 1, dot_pos - slash_pos - 1);
-    if (!file_) {
-        cout << "Cannot open file::setFileName" << endl;
-        exit(1);
-    }
+}
+
+void CodeWriter::writeInit()
+{
+    file_ << "@256" << endl //SP=256
+        << "D=A" << endl
+        << "@SP" << endl
+        << "M=D" << endl;
+    writeCall("Sys.init", 0);
+        /* << "@f_Sys.init" << endl */
+        /* << "0;JMP" << endl; */
 }
 
 void CodeWriter::writeArithmetic(const string& command)
@@ -48,7 +51,7 @@ void CodeWriter::writeArithmetic(const string& command)
         } else if (command.compare("lt") == 0) {
             condition = "D;JGT";
         } else {
-            cout << "CodeWriter:;writeArithmetic: Invalid syntax" << endl;
+            cout << "CodeWriter::writeArithmetic: Invalid syntax" << endl;
             exit(1);
         }
         popBinary_();
@@ -164,20 +167,107 @@ void CodeWriter::writeLabel(const string& label)
         cout << "CodeWriter::writeLable: Label starts with digit" << endl;
         exit(1);
     }
-    file_ << "(L_" << label << ")" << endl;
+    file_ << "(" << function_name_ << "$" << label << ")" << endl;
 }
 
 void CodeWriter::writeGoto(const string& label)
 {
-    file_ << "@L_" << label << endl
+    file_ << "@" << function_name_ << "$" << label << endl
         << "0;JMP" << endl;
 }
 
 void CodeWriter::writeIf(const string& label)
 {
     popUnitary_();
-    file_ << "@L_" << label << endl
+    file_ << "@" << function_name_ << "$" << label << endl
         << "D;JNE" << endl;
+}
+
+void CodeWriter::writeFunction(const string& functionName, int numLocals)
+{
+    function_name_ = functionName;
+    file_ << "(f_" << functionName << ")" << endl;
+    for (int i = 0; i < numLocals; i++) {
+        writePushPop(C_PUSH, "constant", 0);
+    } 
+}
+
+void CodeWriter::writeReturn()
+{
+    file_ << "@LCL" << endl //save lcl
+        << "D=M" << endl
+        << "@R14" << endl
+        << "M=D" << endl
+        << "@5" << endl     //save ret
+        << "A=D-A" << endl
+        << "D=M" << endl
+        << "@R15" << endl
+        << "M=D" << endl;
+    popUnitary_();          //set return value
+    file_ << "@ARG" << endl
+        << "A=M" << endl
+        << "M=D" << endl
+        << "@ARG" << endl   //set sp
+        << "D=M+1" << endl
+        << "@SP" << endl
+        << "M=D" << endl
+        << "@R14" << endl   //restore that
+        << "AM=M-1" << endl
+        << "D=M" << endl
+        << "@THAT" << endl
+        << "M=D" << endl
+        << "@R14" << endl   //restore this
+        << "AM=M-1" << endl
+        << "D=M" << endl
+        << "@THIS" << endl
+        << "M=D" << endl
+        << "@R14" << endl   //restore arg
+        << "AM=M-1" << endl
+        << "D=M" << endl
+        << "@ARG" << endl
+        << "M=D" << endl
+        << "@R14" << endl   //restore lcl
+        << "A=M-1" << endl
+        << "D=M" << endl
+        << "@LCL" << endl
+        << "M=D" << endl
+        << "@R15" << endl   //jump to ret
+        << "A=M" << endl
+        << "0;JMP" << endl;
+}
+ 
+void CodeWriter::writeCall(const string& functionName, int numArgs)
+{
+    static int return_index = 1;
+    file_ << "@" << functionName << return_index << endl
+        << "D=A" << endl;
+    pushStack_();
+    file_ << "@LCL" << endl
+        << "D=M" << endl;
+    pushStack_();
+    file_ << "@ARG" << endl
+        << "D=M" << endl;
+    pushStack_();
+    file_ << "@THIS" << endl
+        << "D=M" << endl;
+    pushStack_();
+    file_ << "@THAT" << endl
+        << "D=M" << endl;
+    pushStack_();
+    file_ << "@SP" << endl
+        << "D=M" << endl
+        << "@LCL" << endl   //LCL = SP
+        << "M=D" << endl
+        << "@5" << endl     //ARG = SP - n - 5
+        << "D=D-A" << endl
+        << "@" << numArgs << endl
+        << "D=D-A" << endl
+        << "@ARG" << endl
+        << "M=D" << endl
+        << "@f_" << functionName << endl    //go to f 
+        << "0;JMP" << endl
+        << "(" << functionName << return_index << ")" << endl;
+    return_index++;
 }
 
 void CodeWriter::close()
@@ -207,4 +297,3 @@ void CodeWriter::pushStack_()
         << "@SP" << endl
         << "M=M+1" << endl;
 }
-

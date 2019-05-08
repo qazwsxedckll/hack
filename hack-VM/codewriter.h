@@ -14,7 +14,7 @@ using std::endl;
 class CodeWriter
 {
 public:
-    CodeWriter() {};
+    CodeWriter(const string& s) : file_(s) {};
     void setFileName(const string& filename);
     void writeInit();
     void writeLabel(const string& label);
@@ -30,6 +30,7 @@ public:
 private:
     ofstream file_;
     string file_name_prefix_;
+    string function_name_;
     void popUnitary_();
     void popBinary_();
     void pushStack_();

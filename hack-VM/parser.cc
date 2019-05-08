@@ -1,6 +1,5 @@
 #include "parser.h"
 
-
 Parser::Parser(const string& s) : file(s)
 {
     if (!file.is_open()) {
@@ -22,6 +21,9 @@ Parser::Parser(const string& s) : file(s)
     cmd_map["label"] = C_LABLE;
     cmd_map["if-goto"] = C_IF;
     cmd_map["goto"] = C_GOTO;
+    cmd_map["function"] = C_FUNCTION;
+    cmd_map["return"] = C_RETURN;
+    cmd_map["call"] = C_CALL;
 }
 
 bool Parser::hasMoreCommands()
@@ -34,6 +36,7 @@ void Parser::advance()
     string current_line;
     bool cmd_found = false;
     string::size_type comment_pos;
+    string::size_type end_pos;
     while (!cmd_found && getline(file, current_line)) {
         //remove \n
         current_line.pop_back();
@@ -43,6 +46,9 @@ void Parser::advance()
         if (comment_pos != string::npos) {
             current_line.erase(comment_pos, current_line.size() - comment_pos);
         }
+
+        end_pos = current_line.find_last_not_of(" ");
+        current_line = current_line.substr(0, end_pos + 1);
 
         cmd_found = !current_line.empty();
     }
