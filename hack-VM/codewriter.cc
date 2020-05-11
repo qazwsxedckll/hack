@@ -15,7 +15,7 @@ void CodeWriter::writeInit()
         << "@SP" << endl
         << "M=D" << endl;
     writeCall("Sys.init", 0);
-        /* << "@f_Sys.init" << endl */
+        /* << "@Sys.init" << endl */
         /* << "0;JMP" << endl; */
 }
 
@@ -186,7 +186,7 @@ void CodeWriter::writeIf(const string& label)
 void CodeWriter::writeFunction(const string& functionName, int numLocals)
 {
     function_name_ = functionName;
-    file_ << "(f_" << functionName << ")" << endl;
+    file_ << "(" << functionName << ")" << endl;
     for (int i = 0; i < numLocals; i++) {
         writePushPop(C_PUSH, "constant", 0);
     } 
@@ -198,7 +198,7 @@ void CodeWriter::writeReturn()
         << "D=M" << endl
         << "@R14" << endl
         << "M=D" << endl
-        << "@5" << endl     //save ret
+        << "@5" << endl     //save ret addr
         << "A=D-A" << endl
         << "D=M" << endl
         << "@R15" << endl
@@ -239,7 +239,8 @@ void CodeWriter::writeReturn()
 void CodeWriter::writeCall(const string& functionName, int numArgs)
 {
     static int return_index = 1;
-    file_ << "@" << functionName << return_index << endl
+    const string return_prefix  = "return_";
+    file_ << "@" << return_prefix << functionName << "_" << return_index << endl
         << "D=A" << endl;
     pushStack_();
     file_ << "@LCL" << endl
@@ -264,9 +265,9 @@ void CodeWriter::writeCall(const string& functionName, int numArgs)
         << "D=D-A" << endl
         << "@ARG" << endl
         << "M=D" << endl
-        << "@f_" << functionName << endl    //go to f 
+        << "@" << functionName << endl    //go to f 
         << "0;JMP" << endl
-        << "(" << functionName << return_index << ")" << endl;
+        << "(" << return_prefix << functionName << "_" << return_index << ")" << endl;
     return_index++;
 }
 

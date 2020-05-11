@@ -54,6 +54,9 @@ int main(int argc, char* argv[])
                 return -1;
             }
 
+            if (input.back() == '/') {
+                input = input.substr(0, input.length() - 1);
+            }
             string output_file = input + "/" + input + ".asm";
             CodeWriter writer(output_file);
             writer.writeInit();
