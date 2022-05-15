@@ -27,23 +27,27 @@ SymbolTable::SymbolTable()
     symbol_map["KBD"] = 24576;
 }
 
-void SymbolTable::AddEntry(const string& symbol, int address)
+void SymbolTable::AddEntry(const string &symbol, int address)
 {
-    if (symbol_map.find(symbol) == symbol_map.end()) {
+    if (symbol_map.find(symbol) == symbol_map.end())
+    {
         symbol_map[symbol] = address;
     }
 }
 
-bool SymbolTable::contains(const string& symbol)
+bool SymbolTable::contains(const string &symbol)
 {
     return (symbol_map.find(symbol) != symbol_map.end());
 }
 
-int SymbolTable::GetAddress(const string& symbol)
+int SymbolTable::GetAddress(const string &symbol)
 {
-    if (symbol_map.find(symbol) != symbol_map.end()) {
+    if (symbol_map.find(symbol) != symbol_map.end())
+    {
         return symbol_map[symbol];
-    } else {
+    }
+    else
+    {
         return 0;
     }
 }

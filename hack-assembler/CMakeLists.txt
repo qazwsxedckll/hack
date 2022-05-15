@@ -1,3 +1,7 @@
+cmake_minimum_required(VERSION 3.14)
+
+project(hack-assembler)
+
 add_executable(assembler
     src/code.cc
     src/parser.cc

@@ -50,32 +50,41 @@ Code::Code()
     jump_map["JMP"] = "111";
 }
 
-string Code::dest(const string& dest_mnemonic)
+string Code::dest(const string &dest_mnemonic)
 {
-    if (dest_map.find(dest_mnemonic) != dest_map.end()) {
+    if (dest_map.find(dest_mnemonic) != dest_map.end())
+    {
         return dest_map[dest_mnemonic];
-    } else {
+    }
+    else
+    {
         cout << "Invalid syntax: code: dest" << endl;
         exit(0);
-    }   
+    }
 }
 
-string Code::jump(const string& jump_mnemonic)
+string Code::jump(const string &jump_mnemonic)
 {
-    if (jump_map.find(jump_mnemonic) != jump_map.end()) {
+    if (jump_map.find(jump_mnemonic) != jump_map.end())
+    {
         return jump_map[jump_mnemonic];
-    } else {
+    }
+    else
+    {
         cout << "Invalid syntax: code: jump" << endl;
         exit(0);
-    }   
+    }
 }
 
-string Code::comp(const string& comp_mnemonic)
+string Code::comp(const string &comp_mnemonic)
 {
-    if (comp_map.find(comp_mnemonic) != comp_map.end()) {
+    if (comp_map.find(comp_mnemonic) != comp_map.end())
+    {
         return comp_map[comp_mnemonic];
-    } else {
+    }
+    else
+    {
         cout << "Invalid syntax: code: comp" << endl;
         exit(0);
-    }   
+    }
 }
