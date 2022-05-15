@@ -3,6 +3,5 @@ build/
 
 VMtranslator
 assembler
-*.asm
 *.hack
 *.vm

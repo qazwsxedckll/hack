@@ -35,6 +35,7 @@ public:
     // Returns the comp mnemonic in the current C-command.
     string jump();
     // Returns the jump mnemonic in the current C-command.
+    static bool is_legit(const string& symbol);
 private:
     std::ifstream file;
     string current_cmd;

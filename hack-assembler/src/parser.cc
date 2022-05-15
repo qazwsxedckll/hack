@@ -1,5 +1,7 @@
 #include "parser.h"
 
+#include <regex>
+
 using std::cin;
 using std::cout;
 using std::endl;
@@ -9,7 +11,7 @@ Parser::Parser(const string &s) : file(s)
     if (!file.is_open())
     {
         cout << "failed to open file" << s << endl;
-        exit(0);
+        exit(1);
     }
 
     cmd_map['@'] = A_COMMAND;
@@ -51,19 +53,17 @@ void Parser::advance()
     current_cmd = current_line;
 }
 
-CmdType
-Parser::commandType()
+CmdType Parser::commandType()
 {
     if (cmd_map.find(current_cmd[0]) != cmd_map.end())
     {
         return cmd_map[current_cmd[0]];
     }
     cout << "Invalid syntax: commandType" << endl;
-    exit(0);
+    exit(1);
 }
 
-string
-Parser::dest()
+string Parser::dest()
 {
     string::size_type equal_pos;
     equal_pos = current_cmd.find("=");
@@ -78,8 +78,7 @@ Parser::dest()
     }
 }
 
-string
-Parser::comp()
+string Parser::comp()
 {
     string::size_type equal_pos, semicolon_pos;
     equal_pos = current_cmd.find("=");
@@ -107,8 +106,7 @@ Parser::comp()
     return "";
 }
 
-string
-Parser::jump()
+string Parser::jump()
 {
     string::size_type semicolon_pos;
     semicolon_pos = current_cmd.find(";");
@@ -120,20 +118,31 @@ Parser::jump()
     return "";
 }
 
-string
-Parser::symbol()
+string Parser::symbol()
 {
+    string symbol;
     if (commandType() == A_COMMAND)
     {
-        return current_cmd.substr(1);
+        symbol = current_cmd.substr(1);
     }
     else if (commandType() == L_COMMAND)
     {
-        return current_cmd.substr(1, current_cmd.size() - 2);
+        symbol = current_cmd.substr(1, current_cmd.size() - 2);
     }
     else
     {
         cout << "Parser::symbol: not A or L command" << endl;
-        exit(0);
+        exit(1);
     }
+
+    if (is_legit(symbol))
+        return symbol;
+
+    exit(1);
+}
+
+bool Parser::is_legit(const string& symbol)
+{
+    std::regex pattern("^[A-Za-z_.$:][A-Za-z0-9_.$:]*$");
+    return std::regex_match(symbol, pattern);
 }
