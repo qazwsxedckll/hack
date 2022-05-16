@@ -136,9 +136,14 @@ string Parser::symbol()
     }
 
     if (is_legit(symbol))
+    {
         return symbol;
-
-    exit(1);
+    }
+    else
+    {
+        cout << "symbol: " << symbol << " is not legit." << endl;
+        exit(1);
+    }
 }
 
 bool Parser::is_legit(const string& symbol)
