@@ -10,7 +10,11 @@ add_executable(assembler
 )
 
 target_include_directories(assembler
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+install(TARGETS assembler
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_executable(parser_test
@@ -19,7 +23,7 @@ add_executable(parser_test
 )
 
 target_include_directories(parser_test
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(parser_test

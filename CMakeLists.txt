@@ -17,3 +17,4 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_subdirectory(hack-assembler)
+add_subdirectory(hack-VM)
