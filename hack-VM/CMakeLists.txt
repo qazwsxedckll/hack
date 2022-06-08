@@ -12,6 +12,9 @@ target_include_directories(VMtranslator
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+install(TARGETS VMtranslator
+    DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
+)
 # add_executable(parser_test
 # )
 
