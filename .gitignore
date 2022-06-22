@@ -1,7 +1,9 @@
 .vscode
 build/
 
-VMtranslator
 assembler
 *.hack
+VMtranslator
 *.vm
+jackcompiler
+*.jack

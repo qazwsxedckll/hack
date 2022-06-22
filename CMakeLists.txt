@@ -5,6 +5,8 @@ project(hack)
 set(CMAKE_CXX_STANDARD 17)
 
 include(FetchContent)
+
+set(INSTALL_GTEST OFF)
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
@@ -18,3 +20,4 @@ enable_testing()
 
 add_subdirectory(hack-assembler)
 add_subdirectory(hack-VM)
+add_subdirectory(jack-compiler)
