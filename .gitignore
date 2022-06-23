@@ -2,8 +2,5 @@
 build/
 
 assembler
-*.hack
 VMtranslator
-*.vm
 jackcompiler
-*.jack
