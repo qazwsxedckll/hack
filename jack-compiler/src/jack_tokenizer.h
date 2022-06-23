@@ -37,8 +37,8 @@ private:
     string current_token_;
     stringstream line_stream_;
 
-    unordered_map<string, TokenType> tokentype_map;
-    unordered_map<string, Keyword> keyword_map;
+    static const unordered_map<string, TokenType> tokentype_map;
+    static const unordered_map<string, Keyword> keyword_map;
 };
 #endif
 

@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "jack_tokenizer.h"
 
 #include <iostream>
 
@@ -15,6 +16,7 @@ int main(int argc, char* argv[])
     } else {
         input = argv[1];
         if (IsJackFile(input)) {
+            Jacktokenizer tokenizer(input); 
             return 0;
         } else {
             auto dir = opendir(argv[1]);
