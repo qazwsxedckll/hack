@@ -9,68 +9,68 @@ Jacktokenizer::Jacktokenizer(const string& s) : file_(s)
         exit(1);
     }
     
-    tokentype_map["class"] = KEYWORD;
-    tokentype_map["constructor"] = KEYWORD;
-    tokentype_map["function"] = KEYWORD;
-    tokentype_map["method"] = KEYWORD;
-    tokentype_map["field"] = KEYWORD;
-    tokentype_map["static"] = KEYWORD;
-    tokentype_map["var"] = KEYWORD;
-    tokentype_map["int"] = KEYWORD;
-    tokentype_map["char"] = KEYWORD;
-    tokentype_map["boolean"] = KEYWORD;
-    tokentype_map["void"] = KEYWORD;
-    tokentype_map["true"] = KEYWORD;
-    tokentype_map["false"] = KEYWORD;
-    tokentype_map["null"] = KEYWORD;
-    tokentype_map["this"] = KEYWORD;
-    tokentype_map["let"] = KEYWORD;
-    tokentype_map["do"] = KEYWORD;
-    tokentype_map["if"] = KEYWORD;
-    tokentype_map["else"] = KEYWORD;
-    tokentype_map["while"] = KEYWORD;
-    tokentype_map["return"] = KEYWORD;
-    tokentype_map["{"] = SYMBOL;
-    tokentype_map["}"] = SYMBOL;
-    tokentype_map["("] = SYMBOL;
-    tokentype_map[")"] = SYMBOL;
-    tokentype_map["["] = SYMBOL;
-    tokentype_map["]"] = SYMBOL;
-    tokentype_map["."] = SYMBOL;
-    tokentype_map[","] = SYMBOL;
-    tokentype_map[";"] = SYMBOL;
-    tokentype_map["+"] = SYMBOL;
-    tokentype_map["-"] = SYMBOL;
-    tokentype_map["*"] = SYMBOL;
-    tokentype_map["/"] = SYMBOL;
-    tokentype_map["&"] = SYMBOL;
-    tokentype_map["|"] = SYMBOL;
-    tokentype_map["<"] = SYMBOL;
-    tokentype_map[">"] = SYMBOL;
-    tokentype_map["="] = SYMBOL;
-    tokentype_map["~"] = SYMBOL;
+    tokentype_map["class"] = TokenType::KEYWORD;
+    tokentype_map["constructor"] = TokenType::KEYWORD;
+    tokentype_map["function"] = TokenType::KEYWORD;
+    tokentype_map["method"] = TokenType::KEYWORD;
+    tokentype_map["field"] = TokenType::KEYWORD;
+    tokentype_map["static"] = TokenType::KEYWORD;
+    tokentype_map["var"] = TokenType::KEYWORD;
+    tokentype_map["int"] = TokenType::KEYWORD;
+    tokentype_map["char"] = TokenType::KEYWORD;
+    tokentype_map["boolean"] = TokenType::KEYWORD;
+    tokentype_map["void"] = TokenType::KEYWORD;
+    tokentype_map["true"] = TokenType::KEYWORD;
+    tokentype_map["false"] = TokenType::KEYWORD;
+    tokentype_map["null"] = TokenType::KEYWORD;
+    tokentype_map["this"] = TokenType::KEYWORD;
+    tokentype_map["let"] = TokenType::KEYWORD;
+    tokentype_map["do"] = TokenType::KEYWORD;
+    tokentype_map["if"] = TokenType::KEYWORD;
+    tokentype_map["else"] = TokenType::KEYWORD;
+    tokentype_map["while"] = TokenType::KEYWORD;
+    tokentype_map["return"] = TokenType::KEYWORD;
+    tokentype_map["{"] = TokenType::SYMBOL;
+    tokentype_map["}"] = TokenType::SYMBOL;
+    tokentype_map["("] = TokenType::SYMBOL;
+    tokentype_map[")"] = TokenType::SYMBOL;
+    tokentype_map["["] = TokenType::SYMBOL;
+    tokentype_map["]"] = TokenType::SYMBOL;
+    tokentype_map["."] = TokenType::SYMBOL;
+    tokentype_map[","] = TokenType::SYMBOL;
+    tokentype_map[";"] = TokenType::SYMBOL;
+    tokentype_map["+"] = TokenType::SYMBOL;
+    tokentype_map["-"] = TokenType::SYMBOL;
+    tokentype_map["*"] = TokenType::SYMBOL;
+    tokentype_map["/"] = TokenType::SYMBOL;
+    tokentype_map["&"] = TokenType::SYMBOL;
+    tokentype_map["|"] = TokenType::SYMBOL;
+    tokentype_map["<"] = TokenType::SYMBOL;
+    tokentype_map[">"] = TokenType::SYMBOL;
+    tokentype_map["="] = TokenType::SYMBOL;
+    tokentype_map["~"] = TokenType::SYMBOL;
 
-    keyword_map["class"] = CLASS;
-    keyword_map["constructor"] = CONSTRUCTOR;
-    keyword_map["function"] = FUNCTION;
-    keyword_map["method"] = METHOD;
-    keyword_map["field"] = FIELD;
-    keyword_map["static"] = STATIC;
-    keyword_map["var"] = VAR;
-    keyword_map["int"] = INT;
-    keyword_map["char"] = CHAR;
-    keyword_map["boolean"] = BOOLEAN;
-    keyword_map["void"] = VOID;
-    keyword_map["true"] = K_TRUE;
-    keyword_map["false"] = K_FALSE;
-    keyword_map["null"] = K_NULL;
-    keyword_map["this"] = THIS;
-    keyword_map["let"] = LET;
-    keyword_map["do"] = DO;
-    keyword_map["if"] = IF;
-    keyword_map["else"] = ELSE;
-    keyword_map["while"] = WHILE;
-    keyword_map["return"] = RETURN;
+    keyword_map["class"] = Keyword::CLASS;
+    keyword_map["constructor"] = Keyword::CONSTRUCTOR;
+    keyword_map["function"] = Keyword::FUNCTION;
+    keyword_map["method"] = Keyword::METHOD;
+    keyword_map["field"] = Keyword::FIELD;
+    keyword_map["static"] = Keyword::STATIC;
+    keyword_map["var"] = Keyword::VAR;
+    keyword_map["int"] = Keyword::INT;
+    keyword_map["char"] = Keyword::CHAR;
+    keyword_map["boolean"] = Keyword::BOOLEAN;
+    keyword_map["void"] = Keyword::VOID;
+    keyword_map["true"] = Keyword::K_TRUE;
+    keyword_map["false"] = Keyword::K_FALSE;
+    keyword_map["null"] = Keyword::K_NULL;
+    keyword_map["this"] = Keyword::THIS;
+    keyword_map["let"] = Keyword::LET;
+    keyword_map["do"] = Keyword::DO;
+    keyword_map["if"] = Keyword::IF;
+    keyword_map["else"] = Keyword::ELSE;
+    keyword_map["while"] = Keyword::WHILE;
+    keyword_map["return"] = Keyword::RETURN;
 }
 
 bool Jacktokenizer::hasMoreTokens()
@@ -148,7 +148,7 @@ TokenType Jacktokenizer::tokenType()
         }
         else
         {
-            return STRING_CONST;
+            return TokenType::STRING_CONST;
         }
     }
     else if (std::all_of(current_token_.begin(), current_token_.end(), ::isdigit))
@@ -156,7 +156,7 @@ TokenType Jacktokenizer::tokenType()
         int i = std::stoi(current_token_);
         if (i >= 0 && i <= 32767)
         {
-            return INT_CONST;
+            return TokenType::INT_CONST;
         }
         else
         {
@@ -166,7 +166,7 @@ TokenType Jacktokenizer::tokenType()
     }
     else if (!std::isdigit(current_token_.front()))
     {
-        return IDENTIFIER;
+        return TokenType::IDENTIFIER;
     }
     else
     {
@@ -177,7 +177,7 @@ TokenType Jacktokenizer::tokenType()
 
 Keyword Jacktokenizer::keyWord()
 {
-    if (tokenType() == KEYWORD)
+    if (tokenType() == TokenType::KEYWORD)
     {
         return keyword_map[current_token_];
     }
@@ -190,7 +190,7 @@ Keyword Jacktokenizer::keyWord()
 
 char Jacktokenizer::symbol()
 {
-    if (tokenType() == SYMBOL)
+    if (tokenType() == TokenType::SYMBOL)
     {
         return current_token_.front();
     }
@@ -203,7 +203,7 @@ char Jacktokenizer::symbol()
 
 string Jacktokenizer::identifier()
 {
-    if (tokenType() == IDENTIFIER)
+    if (tokenType() == TokenType::IDENTIFIER)
     {
         return current_token_;
     }
@@ -216,7 +216,7 @@ string Jacktokenizer::identifier()
 
 int Jacktokenizer::intVal()
 {
-    if (tokenType() == INT_CONST)
+    if (tokenType() == TokenType::INT_CONST)
     {
         return std::stoi(current_token_);
     }
@@ -229,7 +229,7 @@ int Jacktokenizer::intVal()
 
 string Jacktokenizer::stringVal()
 {
-    if (tokenType() == STRING_CONST)
+    if (tokenType() == TokenType::STRING_CONST)
     {
         return current_token_;
     }

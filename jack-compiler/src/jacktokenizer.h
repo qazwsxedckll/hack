@@ -14,8 +14,8 @@ using std::endl;
 using std::stringstream;
 using std::unordered_map;
 
-enum TokenType { KEYWORD, SYMBOL, IDENTIFIER, INT_CONST, STRING_CONST };
-enum Keyword { CLASS, METHOD, FUNCTION, CONSTRUCTOR, INT, BOOLEAN,
+enum class TokenType { KEYWORD, SYMBOL, IDENTIFIER, INT_CONST, STRING_CONST };
+enum class Keyword { CLASS, METHOD, FUNCTION, CONSTRUCTOR, INT, BOOLEAN,
                 CHAR, VOID, VAR, STATIC, FIELD, LET, DO, IF, ELSE,
                 WHILE, RETURN, K_TRUE, K_FALSE, K_NULL, THIS };
 

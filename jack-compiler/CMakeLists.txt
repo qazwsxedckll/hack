@@ -5,6 +5,7 @@ project(jackcompiler)
 add_executable(jackcompiler
     main.cc
     src/utils.cc
+    src/jacktokenizer.cc
 )
 
 target_include_directories(jackcompiler
