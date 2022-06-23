@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
             string file_path;
             while (entity != NULL) {
                 file_path = input + "/" + entity->d_name;
-                if (file_path.substr(file_path.size() - 5, 5) == ".jack") {
+                if (IsJackFile(file_path)) {
                 }
                 entity = readdir(dir);
             }
