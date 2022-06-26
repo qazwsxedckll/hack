@@ -4,7 +4,7 @@ project(jackcompiler)
 
 add_executable(jackcompiler
     main.cc
-    src/utils.cc
+    src/jack_analyzer.cc
     src/jack_tokenizer.cc
     src/compilation_engine.cc
 )
@@ -17,19 +17,19 @@ install(TARGETS jackcompiler
     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-
-add_executable(utils_test
-    test/utils_test.cc
-    src/utils.cc
+add_executable(jack_analyzer_test
+    src/jack_analyzer.cc
+    src/jack_tokenizer.cc
+    test/jack_analyzer_test.cc
 )
 
-target_include_directories(utils_test
+target_include_directories(jack_analyzer_test
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(utils_test
+target_link_libraries(jack_analyzer_test
     gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(utils_test)
+gtest_discover_tests(jack_analyzer_test)
