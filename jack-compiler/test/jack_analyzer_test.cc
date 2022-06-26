@@ -4,7 +4,11 @@
 
 TEST(AnalyzerTest, IsJackFile)
 {
-    EXPECT_EQ(IsJackFile("test.jack"), true);
-    EXPECT_EQ(IsJackFile("test.test"), false);
-    EXPECT_EQ(IsJackFile("test"), false);
+    EXPECT_TRUE(IsJackFile("test.jack"));
+    EXPECT_FALSE(IsJackFile("test.test"));
+    EXPECT_FALSE(IsJackFile("test"));
+}
+
+TEST(AnalyzerTest, SingleFile)
+{
 }
