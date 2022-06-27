@@ -82,7 +82,8 @@ bool Jacktokenizer::hasMoreTokens()
 
 void Jacktokenizer::advance()
 {
-    if (line_stream_) {
+    if (line_stream_)
+    {
         line_stream_ >> current_token_;
         //test
         cout << "current_token_: " << current_token_ << endl;
@@ -93,9 +94,12 @@ void Jacktokenizer::advance()
     bool token_found = false;
     bool comment_found = false;
     string::size_type comment_start, comment_end;
-    while (!token_found && getline(file_, current_line)) {
+    while (!token_found && getline(file_, current_line))
+    {
+        cout << "current line: " << current_line << endl;
         // inside comment
-        if (comment_found == true) {
+        if (comment_found == true)
+        {
             comment_end = current_line.find("*/");
             if (comment_end == string::npos) {
                 continue;
@@ -108,10 +112,12 @@ void Jacktokenizer::advance()
 
         //remove /* comments
         comment_start = current_line.find("/*");
-        if (comment_start != string::npos) {
+        if (comment_start != string::npos)
+        {
             comment_found = true;
             comment_end = current_line.find("*/");
-            if (comment_end != string::npos) {
+            if (comment_end != string::npos)
+            {
                 comment_found = false;
                 current_line.erase(comment_start, comment_end - comment_start + 2);
             }
@@ -121,12 +127,6 @@ void Jacktokenizer::advance()
         comment_start = current_line.find("//");
         if (comment_start != string::npos)
         {
-            current_line.erase(comment_start);
-        }
-
-        //remove \n
-        current_line.pop_back();
-        if (current_line.empty()) {
             continue;
         }
     }

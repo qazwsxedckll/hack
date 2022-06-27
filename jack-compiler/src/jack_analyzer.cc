@@ -1,5 +1,6 @@
 #include "jack_analyzer.h"
 #include "jack_tokenizer.h"
+#include "compilation_engine.h"
 
 #include <filesystem>
 
@@ -27,8 +28,12 @@ int Analyze(const string& file_name)
     if (IsJackFile(input))
     {
         Jacktokenizer tokenizer(input);
-        std::ofstream output(input.filename().replace_extension(".xml"));
-        output.close();
+        const std::filesystem::path output(input.filename().replace_extension(".xml"));
+        CompilationEngine engine(input, output); 
+        while (tokenizer.hasMoreTokens())
+        {
+            tokenizer.advance();
+        }
         return 0;
     }
     else

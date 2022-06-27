@@ -6,7 +6,7 @@
 class CompilationEngine
 {
 public:
-    CompilationEngine(std::ifstream input_file, std::ofstream output_file);
+    CompilationEngine(const std::string& input, const std::string& output);
     void CompileClass();
     void CompileClassVarDec();
     void CompileSubroutine();
@@ -21,8 +21,10 @@ public:
     void CompileExpression();
     void CompileTerm();
     void CompileExpressionList();
-    ~CompilationEngine();
+    ~CompilationEngine() {};
 private:
+    std::ifstream input_file_;
+    std::ofstream output_file_;
 };
 
 #endif // !COMPILATION_ENGINE_H_
