@@ -8,7 +8,3 @@ TEST(AnalyzerTest, IsJackFile)
     EXPECT_FALSE(IsJackFile("test.test"));
     EXPECT_FALSE(IsJackFile("test"));
 }
-
-TEST(AnalyzerTest, SingleFile)
-{
-}

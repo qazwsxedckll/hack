@@ -1,10 +1,12 @@
 #ifndef COMPILATION_ENGINE_H_
 #define COMPILATION_ENGINE_H_
 
+#include <fstream>
+
 class CompilationEngine
 {
 public:
-    CompilationEngine();
+    CompilationEngine(std::ifstream input_file, std::ofstream output_file);
     void CompileClass();
     void CompileClassVarDec();
     void CompileSubroutine();

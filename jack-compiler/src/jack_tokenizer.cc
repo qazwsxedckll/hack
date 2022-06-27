@@ -70,10 +70,9 @@ const unordered_map<string, Keyword> Jacktokenizer::keyword_map = {
 Jacktokenizer::Jacktokenizer(const string& s) : file_(s)
 {
     if (!file_) {
-        cout << "Jacktokenizer: Failed to open file" << s << endl;
+        cout << "Jacktokenizer: Failed to open file(" << s << ")" << endl;
         exit(1);
     }
-    
 }
 
 bool Jacktokenizer::hasMoreTokens()
@@ -174,7 +173,7 @@ TokenType Jacktokenizer::tokenType()
     }
     else
     {
-        cout << "Jacktokenizer::tokenType: Invalid token" << current_token_ << ")" << endl;
+        cout << "Jacktokenizer::tokenType: Invalid token(" << current_token_ << ")" << endl;
         exit(1);
     }
 }
@@ -187,7 +186,7 @@ Keyword Jacktokenizer::keyWord()
     }
     else
     {
-        cout << "Jacktokenizer::keyWord: Invalid token" << current_token_ << ")" << endl;
+        cout << "Jacktokenizer::keyWord: Invalid token(" << current_token_ << ")" << endl;
         exit(1);
     }
 }
@@ -200,7 +199,7 @@ char Jacktokenizer::symbol()
     }
     else
     {
-        cout << "Jacktokenizer::symbol: Invalid token" << current_token_ << ")" << endl;
+        cout << "Jacktokenizer::symbol: Invalid token(" << current_token_ << ")" << endl;
         exit(1);
     }
 }
@@ -213,7 +212,7 @@ string Jacktokenizer::identifier()
     }
     else
     {
-        cout << "Jacktokenizer::identifier: Invalid token" << current_token_ << ")" << endl;
+        cout << "Jacktokenizer::identifier: Invalid token(" << current_token_ << ")" << endl;
         exit(1);
     }
 }
@@ -226,7 +225,7 @@ int Jacktokenizer::intVal()
     }
     else
     {
-        cout << "Jacktokenizer::intVal: Invalid token" << current_token_ << ")" << endl;
+        cout << "Jacktokenizer::intVal: Invalid token(" << current_token_ << ")" << endl;
         exit(1);
     }
 }
@@ -239,7 +238,7 @@ string Jacktokenizer::stringVal()
     }
     else
     {
-        cout << "Jacktokenizer::stringVal: Invalid token" << current_token_ << ")" << endl;
+        cout << "Jacktokenizer::stringVal: Invalid token(" << current_token_ << ")" << endl;
         exit(1);
     }
 }

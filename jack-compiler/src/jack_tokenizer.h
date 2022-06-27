@@ -7,11 +7,9 @@
 #include <sstream>
 #include <unordered_map>
 
-using std::ifstream;
 using std::string;
 using std::cout;
 using std::endl;
-using std::stringstream;
 using std::unordered_map;
 
 enum class TokenType { KEYWORD, SYMBOL, IDENTIFIER, INT_CONST, STRING_CONST };
@@ -33,9 +31,9 @@ public:
     string stringVal();
     ~Jacktokenizer() {}
 private:
-    ifstream file_;
+    std::ifstream file_;
     string current_token_;
-    stringstream line_stream_;
+    std::stringstream line_stream_;
 
     static const unordered_map<string, TokenType> tokentype_map;
     static const unordered_map<string, Keyword> keyword_map;
