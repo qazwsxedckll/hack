@@ -4,9 +4,12 @@
 
 TEST(TokenizerTest, Advance)
 {
-    Jacktokenizer tokenizer("Square/Main.jack");
-    if (tokenizer.hasMoreTokens())
+    Jacktokenizer tokenizer("Square/SquareGame.jack");
+    for (int i = 0; i < 10; i++)
     {
-        tokenizer.advance();
+        if (tokenizer.hasMoreTokens())
+        {
+            tokenizer.advance();
+        }
     }
 }
