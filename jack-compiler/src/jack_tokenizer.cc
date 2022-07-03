@@ -77,31 +77,32 @@ Jacktokenizer::Jacktokenizer(const string& s) : file_(s)
 
 bool Jacktokenizer::hasMoreTokens()
 {
-    return (file_.peek() != EOF || !current_line_.empty());
+    return (file_.peek() != EOF || line_stream_.good());
 }
 
 void Jacktokenizer::advance()
 {
     if (line_stream_ >> current_token_)
     {
-        cout << "current token: " << current_token_ << endl;
+        cout << "token: " << current_token_ << endl;
         return;
     }
 
     cout << "good? " << line_stream_.good() << endl;
     line_stream_.clear();
 
-    while(current_line_.empty())
+    bool comment_found = false;
+    string::size_type comment_start, comment_end;
+    string current_line;
+    while(current_line.empty() || comment_found)
     {
-        bool comment_found = false;
-        string::size_type comment_start, comment_end;
-        while (getline(file_, current_line_))
+        if (getline(file_, current_line))
         {
-            cout << "current line: " << current_line_ << endl;
+            cout << "current line: " << current_line << endl;
             // inside comment
             if (comment_found == true)
             {
-                comment_end = current_line_.find("*/");
+                comment_end = current_line.find("*/");
                 if (comment_end == string::npos)
                 {
                     continue;
@@ -109,46 +110,46 @@ void Jacktokenizer::advance()
                 else
                 {
                     comment_found = false;
-                    current_line_.erase(0, comment_end + 2);
-                    break;
+                    current_line.erase(0, comment_end + 2);
                 }
             }
 
             // remove //comment
-            comment_start = current_line_.find("//");
+            comment_start = current_line.find("//");
             if (comment_start != string::npos)
             {
-                current_line_.erase(comment_start);
+                current_line.erase(comment_start);
             }
 
             // remove /* comments
-            comment_start = current_line_.find("/*");
+            comment_start = current_line.find("/*");
             if (comment_start != string::npos)
             {
                 comment_found = true;
-                comment_end = current_line_.find("*/");
+                comment_end = current_line.find("*/");
                 if (comment_end != string::npos)
                 {
                     comment_found = false;
-                    current_line_.erase(comment_start, comment_end - comment_start + 2);
+                    current_line.erase(comment_start, comment_end - comment_start + 2);
                 }
                 else
                 {
-                    current_line_.erase(comment_start);
+                    current_line.erase(comment_start);
                 }
             }
         }
-        current_line_.erase(std::remove(current_line_.begin(), current_line_.end(), '\r'), current_line_.end());
+        current_line.erase(std::remove(current_line.begin(), current_line.end(), '\r'), current_line.end());
     }
-    cout << "after: " << current_line_ << " length:" << current_line_.length() << endl;
+    cout << "after: " << current_line << " length:" << current_line.length() << endl;
 
-    line_stream_.str(current_line_);
+    line_stream_.str(current_line);
     if (!(line_stream_ >> current_token_))
     {
         cout << "something bad happend" << endl;
         exit(1);
     }
     cout << "token: " << current_token_ << endl;
+    return;
 }
 
 TokenType Jacktokenizer::tokenType()

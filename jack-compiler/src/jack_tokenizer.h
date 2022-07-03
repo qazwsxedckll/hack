@@ -33,7 +33,6 @@ public:
 private:
     std::ifstream file_;
     string current_token_;
-    string current_line_;
     std::stringstream line_stream_;
 
     static const unordered_map<string, TokenType> tokentype_map;
