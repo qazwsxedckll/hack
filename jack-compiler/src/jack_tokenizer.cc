@@ -1,7 +1,7 @@
 #include "jack_tokenizer.h"
 #include <algorithm>
 
-const unordered_map<string, TokenType> Jacktokenizer::tokentype_map = {
+const unordered_map<string, TokenType> Jacktokenizer::keyword_token_map = {
     {"class", TokenType::KEYWORD},
     {"constructor", TokenType::KEYWORD},
     {"function", TokenType::KEYWORD},
@@ -22,7 +22,9 @@ const unordered_map<string, TokenType> Jacktokenizer::tokentype_map = {
     {"if", TokenType::KEYWORD},
     {"else", TokenType::KEYWORD},
     {"while", TokenType::KEYWORD},
-    {"return", TokenType::KEYWORD},
+    {"return", TokenType::KEYWORD}};
+
+const unordered_map<string, TokenType> Jacktokenizer::symbol_token_map = {
     {"{", TokenType::SYMBOL},
     {"}", TokenType::SYMBOL},
     {"(", TokenType::SYMBOL},
@@ -41,8 +43,8 @@ const unordered_map<string, TokenType> Jacktokenizer::tokentype_map = {
     {"<", TokenType::SYMBOL},
     {">", TokenType::SYMBOL},
     {"=", TokenType::SYMBOL},
-    {"~", TokenType::SYMBOL}
-};
+    {"~", TokenType::SYMBOL}};
+
 const unordered_map<string, Keyword> Jacktokenizer::keyword_map = {
     {"class", Keyword::CLASS},
     {"constructor", Keyword::CONSTRUCTOR},
@@ -64,12 +66,34 @@ const unordered_map<string, Keyword> Jacktokenizer::keyword_map = {
     {"if", Keyword::IF},
     {"else", Keyword::ELSE},
     {"while", Keyword::WHILE},
-    {"return", Keyword::RETURN}
-};
+    {"return", Keyword::RETURN}};
 
-Jacktokenizer::Jacktokenizer(const string& s) : file_(s)
+const string kWhiteSpace = " \n\r\t\f\v";
+
+const string kSymbolToken = "{}()[].,;+-*/&|<>=~";
+
+string ltrim(const string &s)
 {
-    if (!file_) {
+    size_t start = s.find_first_not_of(kWhiteSpace);
+    return (start == string::npos) ? "" : s.substr(start);
+}
+ 
+string rtrim(const string &s)
+{
+    size_t end = s.find_last_not_of(kWhiteSpace);
+    return (end == string::npos) ? "" : s.substr(0, end + 1);
+}
+ 
+string trim(const string &s) {
+    return rtrim(ltrim(s));
+}
+
+Jacktokenizer::Jacktokenizer(const string &s) :
+    file_(s),
+    line_pos_(0)
+{
+    if (!file_)
+    {
         cout << "Jacktokenizer: Failed to open file(" << s << ")" << endl;
         exit(1);
     }
@@ -77,32 +101,28 @@ Jacktokenizer::Jacktokenizer(const string& s) : file_(s)
 
 bool Jacktokenizer::hasMoreTokens()
 {
-    return (file_.peek() != EOF || line_stream_.good());
+    return (file_.peek() != EOF || !current_line_.empty());
 }
 
 void Jacktokenizer::advance()
 {
-    if (line_stream_ >> current_token_)
-    {
-        cout << "token: " << current_token_ << endl;
-        return;
-    }
-
-    cout << "good? " << line_stream_.good() << endl;
-    line_stream_.clear();
-
     bool comment_found = false;
     string::size_type comment_start, comment_end;
-    string current_line;
-    while(current_line.empty() || comment_found)
+    while (current_line_.empty() || comment_found)
     {
-        if (getline(file_, current_line))
+        if (getline(file_, current_line_))
         {
-            cout << "current line: " << current_line << endl;
+            cout << "current line: " << current_line_ << endl;
+            current_line_ = trim(current_line_);
+            if (current_line_.empty())
+            {
+                continue;
+            }
+
             // inside comment
             if (comment_found == true)
             {
-                comment_end = current_line.find("*/");
+                comment_end = current_line_.find("*/");
                 if (comment_end == string::npos)
                 {
                     continue;
@@ -110,92 +130,83 @@ void Jacktokenizer::advance()
                 else
                 {
                     comment_found = false;
-                    current_line.erase(0, comment_end + 2);
+                    current_line_.erase(0, comment_end + 2);
                 }
             }
 
             // remove //comment
-            comment_start = current_line.find("//");
+            comment_start = current_line_.find("//");
             if (comment_start != string::npos)
             {
-                current_line.erase(comment_start);
+                current_line_.erase(comment_start);
             }
 
             // remove /* comments
-            comment_start = current_line.find("/*");
+            comment_start = current_line_.find("/*");
             if (comment_start != string::npos)
             {
                 comment_found = true;
-                comment_end = current_line.find("*/");
+                comment_end = current_line_.find("*/");
                 if (comment_end != string::npos)
                 {
                     comment_found = false;
-                    current_line.erase(comment_start, comment_end - comment_start + 2);
+                    current_line_.erase(comment_start, comment_end - comment_start + 2);
                 }
                 else
                 {
-                    current_line.erase(comment_start);
+                    current_line_.erase(comment_start);
                 }
             }
         }
-        current_line.erase(std::remove(current_line.begin(), current_line.end(), '\r'), current_line.end());
     }
-    cout << "after: " << current_line << " length:" << current_line.length() << endl;
+    cout << "after: " << current_line_ << " length:" << current_line_.length() << endl;
 
-    line_stream_.str(current_line);
-    if (!(line_stream_ >> current_token_))
-    {
-        cout << "something bad happend" << endl;
-        exit(1);
-    }
-    cout << "token: " << current_token_ << endl;
     return;
 }
 
 TokenType Jacktokenizer::tokenType()
 {
-    //keyword & symbol
-    auto token_type = tokentype_map.find(current_token_);
-    if (token_type != tokentype_map.end())
-    {
-        return token_type->second;
-    }
-    // string constant
-    else if (current_token_.front() == '"' && current_token_.back() == '"')
-    {
-        if (current_token_.find("\n", 1) != string::npos
-            ||current_token_.find("\"", 1, current_token_.length() - 2))
-        {
-            cout << "Jacktokenizer::tokenType: Invalid string constant(" << current_token_ << ")" << endl;
-            exit(1);
-        }
-        else
-        {
-            return TokenType::STRING_CONST;
-        }
-    }
-    else if (std::all_of(current_token_.begin(), current_token_.end(), ::isdigit))
-    {
-        int i = std::stoi(current_token_);
-        if (i >= 0 && i <= 32767)
-        {
-            return TokenType::INT_CONST;
-        }
-        else
-        {
-            cout << "Jacktokenizer::tokenType: Invalid int constant(" << current_token_ << ")" << endl;
-            exit(1);
-        }
-    }
-    else if (!std::isdigit(current_token_.front()))
-    {
-        return TokenType::IDENTIFIER;
-    }
-    else
-    {
-        cout << "Jacktokenizer::tokenType: Invalid token(" << current_token_ << ")" << endl;
-        exit(1);
-    }
+    // // keyword & symbol
+    // auto token_type = tokentype_map.find(current_token_);
+    // if (token_type != tokentype_map.end())
+    // {
+    //     return token_type->second;
+    // }
+    // // string constant
+    // else if (current_token_.front() == '"' && current_token_.back() == '"')
+    // {
+    //     if (current_token_.find("\n", 1) != string::npos || current_token_.find("\"", 1, current_token_.length() - 2))
+    //     {
+    //         cout << "Jacktokenizer::tokenType: Invalid string constant(" << current_token_ << ")" << endl;
+    //         exit(1);
+    //     }
+    //     else
+    //     {
+    //         return TokenType::STRING_CONST;
+    //     }
+    // }
+    // else if (std::all_of(current_token_.begin(), current_token_.end(), ::isdigit))
+    // {
+    //     int i = std::stoi(current_token_);
+    //     if (i >= 0 && i <= 32767)
+    //     {
+    //         return TokenType::INT_CONST;
+    //     }
+    //     else
+    //     {
+    //         cout << "Jacktokenizer::tokenType: Invalid int constant(" << current_token_ << ")" << endl;
+    //         exit(1);
+    //     }
+    // }
+    // else if (!std::isdigit(current_token_.front()))
+    // {
+    //     return TokenType::IDENTIFIER;
+    // }
+    // else
+    // {
+    //     cout << "Jacktokenizer::tokenType: Invalid token(" << current_token_ << ")" << endl;
+    //     exit(1);
+    // }
 }
 
 Keyword Jacktokenizer::keyWord()
@@ -262,4 +273,3 @@ string Jacktokenizer::stringVal()
         exit(1);
     }
 }
-

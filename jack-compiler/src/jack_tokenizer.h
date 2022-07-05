@@ -30,12 +30,14 @@ public:
     int intVal();
     string stringVal();
     ~Jacktokenizer() {}
+    string current_token_;
 private:
     std::ifstream file_;
-    string current_token_;
-    std::stringstream line_stream_;
+    string current_line_;
+    int line_pos_;
 
-    static const unordered_map<string, TokenType> tokentype_map;
+    static const unordered_map<string, TokenType> keyword_token_map;
+    static const unordered_map<string, TokenType> symbol_token_map;
     static const unordered_map<string, Keyword> keyword_map;
 };
 #endif
