@@ -1,5 +1,14 @@
 #include "jack_tokenizer.h"
+
 #include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+using std::ifstream;
+using std::stringstream;
+using std::cout;
+using std::endl;
 
 const unordered_map<string, TokenType> Jacktokenizer::keyword_token_map = {
     {"class", TokenType::KEYWORD},
@@ -68,100 +77,99 @@ const unordered_map<string, Keyword> Jacktokenizer::keyword_map = {
     {"while", Keyword::WHILE},
     {"return", Keyword::RETURN}};
 
-const string kWhiteSpace = " \n\r\t\f\v";
-
 const string kSymbolToken = "{}()[].,;+-*/&|<>=~";
 
-string ltrim(const string &s)
+Jacktokenizer::Jacktokenizer(const string &s)
 {
-    size_t start = s.find_first_not_of(kWhiteSpace);
-    return (start == string::npos) ? "" : s.substr(start);
-}
- 
-string rtrim(const string &s)
-{
-    size_t end = s.find_last_not_of(kWhiteSpace);
-    return (end == string::npos) ? "" : s.substr(0, end + 1);
-}
- 
-string trim(const string &s) {
-    return rtrim(ltrim(s));
-}
-
-Jacktokenizer::Jacktokenizer(const string &s) :
-    file_(s),
-    line_pos_(0)
-{
-    if (!file_)
+    ifstream file(s);
+    if (!file)
     {
         cout << "Jacktokenizer: Failed to open file(" << s << ")" << endl;
         exit(1);
+    }
+
+    string current_line;
+    bool comment_found = false;
+    string::size_type comment_start, comment_end;
+    while (getline(file, current_line))
+    {
+        // inside comment
+        if (comment_found == true)
+        {
+            comment_end = current_line.find("*/");
+            if (comment_end == string::npos)
+            {
+                continue;
+            }
+            else
+            {
+                comment_found = false;
+                current_line.erase(0, comment_end + 2);
+            }
+        }
+
+        // remove //comment
+        comment_start = current_line.find("//");
+        if (comment_start != string::npos)
+        {
+            current_line.erase(comment_start);
+        }
+
+        // remove /* comments
+        comment_start = current_line.find("/*");
+        if (comment_start != string::npos)
+        {
+            comment_found = true;
+            comment_end = current_line.find("*/");
+            if (comment_end != string::npos)
+            {
+                comment_found = false;
+                current_line.erase(comment_start, comment_end - comment_start + 2);
+            }
+            else
+            {
+                current_line.erase(comment_start);
+                continue;
+            }
+        }
+
+        stringstream ss(current_line);
+        string word;
+        while (ss >> word)
+        {
+            string::size_type start_pos{0};
+            while (start_pos < word.size())
+            {
+                auto symbol_pos{word.find_first_of(kSymbolToken, start_pos)};
+                if (symbol_pos != string::npos)
+                {
+                    string part{word.substr(start_pos, symbol_pos - start_pos)};
+                    if (!part.empty())
+                    {
+                        tokens.push(part);
+                    }
+                    tokens.push(word.substr(symbol_pos, 1));
+                    start_pos = symbol_pos + 1;
+                }
+                else
+                {
+                    tokens.push(word.substr(start_pos));
+                    break;
+                }
+            }
+        }
     }
 }
 
 bool Jacktokenizer::hasMoreTokens()
 {
-    return (file_.peek() != EOF || !current_line_.empty());
+    return !tokens.empty();
 }
 
 void Jacktokenizer::advance()
 {
-    bool comment_found = false;
-    string::size_type comment_start, comment_end;
-    while (current_line_.empty() || comment_found)
-    {
-        if (getline(file_, current_line_))
-        {
-            cout << "current line: " << current_line_ << endl;
-            current_line_ = trim(current_line_);
-            if (current_line_.empty())
-            {
-                continue;
-            }
-
-            // inside comment
-            if (comment_found == true)
-            {
-                comment_end = current_line_.find("*/");
-                if (comment_end == string::npos)
-                {
-                    continue;
-                }
-                else
-                {
-                    comment_found = false;
-                    current_line_.erase(0, comment_end + 2);
-                }
-            }
-
-            // remove //comment
-            comment_start = current_line_.find("//");
-            if (comment_start != string::npos)
-            {
-                current_line_.erase(comment_start);
-            }
-
-            // remove /* comments
-            comment_start = current_line_.find("/*");
-            if (comment_start != string::npos)
-            {
-                comment_found = true;
-                comment_end = current_line_.find("*/");
-                if (comment_end != string::npos)
-                {
-                    comment_found = false;
-                    current_line_.erase(comment_start, comment_end - comment_start + 2);
-                }
-                else
-                {
-                    current_line_.erase(comment_start);
-                }
-            }
-        }
-    }
-    cout << "after: " << current_line_ << " length:" << current_line_.length() << endl;
-
-    return;
+    current_token_ = tokens.front();
+    tokens.pop();
 }
 
 TokenType Jacktokenizer::tokenType()
@@ -207,6 +215,8 @@ TokenType Jacktokenizer::tokenType()
     //     cout << "Jacktokenizer::tokenType: Invalid token(" << current_token_ << ")" << endl;
     //     exit(1);
     // }
+
+    return TokenType::IDENTIFIER;
 }
 
 Keyword Jacktokenizer::keyWord()

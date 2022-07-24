@@ -1,15 +1,10 @@
 #ifndef __JACKTOKENIZER_H__
 #define __JACKTOKENIZER_H__
 
-#include <fstream>
-#include <string>
-#include <iostream>
-#include <sstream>
+#include <queue>
 #include <unordered_map>
 
 using std::string;
-using std::cout;
-using std::endl;
 using std::unordered_map;
 
 enum class TokenType { KEYWORD, SYMBOL, IDENTIFIER, INT_CONST, STRING_CONST };
@@ -29,12 +24,11 @@ public:
     string identifier();
     int intVal();
     string stringVal();
+    string current_token() const { return current_token_; }
     ~Jacktokenizer() {}
-    string current_token_;
 private:
-    std::ifstream file_;
-    string current_line_;
-    int line_pos_;
+    std::queue<string> tokens;
+    string current_token_;
 
     static const unordered_map<string, TokenType> keyword_token_map;
     static const unordered_map<string, TokenType> symbol_token_map;
