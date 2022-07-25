@@ -12,6 +12,8 @@ enum class Keyword { CLASS, METHOD, FUNCTION, CONSTRUCTOR, INT, BOOLEAN,
                 CHAR, VOID, VAR, STATIC, FIELD, LET, DO, IF, ELSE,
                 WHILE, RETURN, K_TRUE, K_FALSE, K_NULL, THIS };
 
+using TokenTypeMap = unordered_map<string, TokenType>;
+
 class Jacktokenizer
 {
 public:
@@ -25,13 +27,14 @@ public:
     int intVal();
     string stringVal();
     string current_token() const { return current_token_; }
+    static bool ValidIdentifier(const string& symbol);
     ~Jacktokenizer() {}
 private:
-    std::queue<string> tokens;
+    std::queue<string> tokens_;
     string current_token_;
 
-    static const unordered_map<string, TokenType> keyword_token_map;
-    static const unordered_map<string, TokenType> symbol_token_map;
+    static const TokenTypeMap keyword_token_map;
+    static const TokenTypeMap symbol_token_map;
     static const unordered_map<string, Keyword> keyword_map;
 };
 #endif

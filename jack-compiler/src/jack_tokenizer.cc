@@ -4,13 +4,15 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <regex>
 
 using std::ifstream;
 using std::stringstream;
 using std::cout;
 using std::endl;
+using std::regex;
 
-const unordered_map<string, TokenType> Jacktokenizer::keyword_token_map = {
+const TokenTypeMap Jacktokenizer::keyword_token_map = {
     {"class", TokenType::KEYWORD},
     {"constructor", TokenType::KEYWORD},
     {"function", TokenType::KEYWORD},
@@ -33,7 +35,7 @@ const unordered_map<string, TokenType> Jacktokenizer::keyword_token_map = {
     {"while", TokenType::KEYWORD},
     {"return", TokenType::KEYWORD}};
 
-const unordered_map<string, TokenType> Jacktokenizer::symbol_token_map = {
+const TokenTypeMap Jacktokenizer::symbol_token_map = {
     {"{", TokenType::SYMBOL},
     {"}", TokenType::SYMBOL},
     {"(", TokenType::SYMBOL},
@@ -146,14 +148,14 @@ Jacktokenizer::Jacktokenizer(const string &s)
                     string part{word.substr(start_pos, symbol_pos - start_pos)};
                     if (!part.empty())
                     {
-                        tokens.push(part);
+                        tokens_.push(part);
                     }
-                    tokens.push(word.substr(symbol_pos, 1));
+                    tokens_.push(word.substr(symbol_pos, 1));
                     start_pos = symbol_pos + 1;
                 }
                 else
                 {
-                    tokens.push(word.substr(start_pos));
+                    tokens_.push(word.substr(start_pos));
                     break;
                 }
             }
@@ -163,60 +165,68 @@ Jacktokenizer::Jacktokenizer(const string &s)
 
 bool Jacktokenizer::hasMoreTokens()
 {
-    return !tokens.empty();
+    return !tokens_.empty();
 }
 
 void Jacktokenizer::advance()
 {
-    current_token_ = tokens.front();
-    tokens.pop();
+    current_token_ = tokens_.front();
+    tokens_.pop();
 }
 
 TokenType Jacktokenizer::tokenType()
 {
-    // // keyword & symbol
-    // auto token_type = tokentype_map.find(current_token_);
-    // if (token_type != tokentype_map.end())
-    // {
-    //     return token_type->second;
-    // }
-    // // string constant
-    // else if (current_token_.front() == '"' && current_token_.back() == '"')
-    // {
-    //     if (current_token_.find("\n", 1) != string::npos || current_token_.find("\"", 1, current_token_.length() - 2))
-    //     {
-    //         cout << "Jacktokenizer::tokenType: Invalid string constant(" << current_token_ << ")" << endl;
-    //         exit(1);
-    //     }
-    //     else
-    //     {
-    //         return TokenType::STRING_CONST;
-    //     }
-    // }
-    // else if (std::all_of(current_token_.begin(), current_token_.end(), ::isdigit))
-    // {
-    //     int i = std::stoi(current_token_);
-    //     if (i >= 0 && i <= 32767)
-    //     {
-    //         return TokenType::INT_CONST;
-    //     }
-    //     else
-    //     {
-    //         cout << "Jacktokenizer::tokenType: Invalid int constant(" << current_token_ << ")" << endl;
-    //         exit(1);
-    //     }
-    // }
-    // else if (!std::isdigit(current_token_.front()))
-    // {
-    //     return TokenType::IDENTIFIER;
-    // }
-    // else
-    // {
-    //     cout << "Jacktokenizer::tokenType: Invalid token(" << current_token_ << ")" << endl;
-    //     exit(1);
-    // }
+    // keyword
+    auto token_type = keyword_token_map.find(current_token_);
+    if (token_type != keyword_token_map.end())
+    {
+        return token_type->second;
+    }
 
-    return TokenType::IDENTIFIER;
+    // symbol
+    token_type = symbol_token_map.find(current_token_);
+    if (token_type != keyword_token_map.end())
+    {
+        return token_type->second;
+    }
+
+    if (ValidIdentifier(current_token_))
+    {
+        return TokenType::IDENTIFIER;
+    }
+
+    // int const
+    if (std::all_of(current_token_.begin(), current_token_.end(), ::isdigit))
+    {
+
+        int i = std::stoi(current_token_);
+        if (i >= 0 && i <= 32767)
+        {
+            return TokenType::INT_CONST;
+        }
+        else
+        {
+            cout << "Jacktokenizer::tokenType: Invalid int constant(" << current_token_ << ")" << endl;
+            exit(1);
+        }
+    }
+
+    // string constant
+    if (current_token_.front() == '"' && current_token_.back() == '"')
+    {
+        if (current_token_.find_first_of("\n\"", 1, current_token_.size() - 2) != string::npos)
+        {
+            cout << "Jacktokenizer::tokenType: Invalid string constant(" << current_token_ << ")" << endl;
+            exit(1);
+        }
+        else
+        {
+            return TokenType::STRING_CONST;
+        }
+    }
+
+    cout << "Jacktokenizer::tokenType: Invalid token(" << current_token_ << ")" << endl;
+    exit(1);
 }
 
 Keyword Jacktokenizer::keyWord()
@@ -282,4 +292,10 @@ string Jacktokenizer::stringVal()
         cout << "Jacktokenizer::stringVal: Invalid token(" << current_token_ << ")" << endl;
         exit(1);
     }
+}
+
+bool Jacktokenizer::ValidIdentifier(const string& symbol)
+{
+    regex pattern("^[A-Za-z_][A-Za-z0-9_]*$");
+    return std::regex_match(symbol, pattern);
 }
