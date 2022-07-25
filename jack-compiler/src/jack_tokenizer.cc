@@ -137,8 +137,34 @@ Jacktokenizer::Jacktokenizer(const string &s)
 
         stringstream ss(current_line);
         string word;
+        string::size_type string_const_search_pos{0};
+        string string_const;
         while (ss >> word)
         {
+
+            // find string constant
+            if (word.front() == '"')
+            {
+                ss >> std::noskipws;
+                char c;
+                while (ss >> c)
+                {
+                    word.push_back(c);
+                    if (c == '"')
+                    {
+                        break;
+                    }
+
+                    if (c == '\r' || c =='\n')
+                    {
+                        cout << "Invalid string const, current line: " << current_line << endl;
+                        exit(1);
+                    }
+                }
+                ss >> std::skipws;
+            }
+
+            // find symbols
             string::size_type start_pos{0};
             while (start_pos < word.size())
             {

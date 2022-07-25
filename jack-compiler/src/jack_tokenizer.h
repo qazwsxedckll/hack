@@ -1,6 +1,8 @@
 #ifndef __JACKTOKENIZER_H__
 #define __JACKTOKENIZER_H__
 
+#include <gtest/gtest.h>
+
 #include <queue>
 #include <unordered_map>
 
@@ -26,10 +28,14 @@ public:
     string identifier();
     int intVal();
     string stringVal();
-    string current_token() const { return current_token_; }
-    static bool ValidIdentifier(const string& symbol);
     ~Jacktokenizer() {}
 private:
+    string current_token() const { return current_token_; }
+    static bool ValidIdentifier(const string& symbol);
+private:
+    FRIEND_TEST(TokenizerTest, ValidIdentifier);
+    FRIEND_TEST(TokenizerTest, Advance);
+
     std::queue<string> tokens_;
     string current_token_;
 
