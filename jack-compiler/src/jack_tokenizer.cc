@@ -216,6 +216,7 @@ TokenType Jacktokenizer::tokenType()
         return token_type->second;
     }
 
+    // identifier
     if (ValidIdentifier(current_token_))
     {
         return TokenType::IDENTIFIER;
@@ -311,7 +312,7 @@ string Jacktokenizer::stringVal()
 {
     if (tokenType() == TokenType::STRING_CONST)
     {
-        return current_token_;
+        return current_token_.substr(1, current_token_.size() - 2);
     }
     else
     {
