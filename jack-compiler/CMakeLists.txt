@@ -1,6 +1,9 @@
-cmake_minimum_required(VERSION 3.14)
-
-project(jackcompiler)
+# FetchContent_Declare(
+#     pugixml
+#     GIT_REPOSITORY https://github.com/zeux/pugixml.git
+#     GIT_TAG        v1.12.1
+# )
+# FetchContent_MakeAvailable(pugixml)
 
 add_executable(jackcompiler
     main.cc
@@ -11,6 +14,10 @@ add_executable(jackcompiler
 
 target_include_directories(jackcompiler
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(jackcompiler
+    GTest::gtest_main
 )
 
 install(TARGETS jackcompiler
@@ -29,7 +36,7 @@ target_include_directories(jack_analyzer_test
 )
 
 target_link_libraries(jack_analyzer_test
-    gtest_main
+    GTest::gtest_main
 )
 
 add_executable(jack_tokenizer_test
@@ -44,7 +51,7 @@ target_include_directories(jack_tokenizer_test
 )
 
 target_link_libraries(jack_tokenizer_test
-    gtest_main
+    GTest::gtest_main
 )
 
 include(GoogleTest)
