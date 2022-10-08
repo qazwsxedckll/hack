@@ -241,15 +241,19 @@ TokenType Jacktokenizer::tokenType()
     // string constant
     if (current_token_.front() == '"' && current_token_.back() == '"')
     {
-        if (current_token_.find_first_of("\n\"", 1, current_token_.size() - 2) != string::npos)
-        {
-            cout << "Jacktokenizer::tokenType: Invalid string constant(" << current_token_ << ")" << endl;
-            exit(1);
-        }
-        else
-        {
-            return TokenType::STRING_CONST;
-        }
+        // if (current_token_.find_first_of("\n\"", 1, current_token_.size() - 2) != string::npos)
+        // {
+               // bug?
+        //     string test = "\"string constant\"";
+        //     cout << test.find_first_of("c", 3) << endl;
+        //     cout << "Jacktokenizer::tokenType: Invalid string constant(" << current_token_ << ")" << endl;
+        //     exit(1);
+        // }
+        // else
+        // {
+        //     return TokenType::STRING_CONST;
+        // }
+        return TokenType::STRING_CONST;
     }
 
     cout << "Jacktokenizer::tokenType: Invalid token(" << current_token_ << ")" << endl;

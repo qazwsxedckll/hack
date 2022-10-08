@@ -28,10 +28,20 @@ int Analyze(const string& file_name)
     if (IsJackFile(input))
     {
         Jacktokenizer tokenizer(input);
+
         const std::filesystem::path output(input.relative_path().replace_extension(".xml"));
-        const std::filesystem::path output(input.relative_path().replace_extension("T.xml"));
         CompilationEngine engine(input, output);
-        cout << "<tokens>" << endl;
+
+        const std::filesystem::path tmpout(input.relative_path().replace_extension("T.xml"));
+        std::ofstream tmp_out_file(tmpout);
+
+        if (!tmp_out_file)
+        {
+            cout << "Jacktokenizer: Failed to open file(" << tmpout << ")" << endl;
+            exit(1);
+        }
+
+        tmp_out_file << "<tokens>" << endl;
         while (tokenizer.hasMoreTokens())
         {
             tokenizer.advance();
@@ -40,92 +50,92 @@ int Analyze(const string& file_name)
             {
             case TokenType::KEYWORD:
             {
-                cout << "<keyword> ";
+                tmp_out_file << "<keyword> ";
                 auto keyword = tokenizer.keyWord();
                 switch (keyword)
                 {
                 case Keyword::CLASS:
-                    cout << "class";
+                    tmp_out_file << "class";
                     break;
                 case Keyword::METHOD:
-                    cout << "method";
+                    tmp_out_file << "method";
                     break;
                 case Keyword::FUNCTION:
-                    cout << "function";
+                    tmp_out_file << "function";
                     break;
                 case Keyword::CONSTRUCTOR:
-                    cout << "constructor";
+                    tmp_out_file << "constructor";
                     break;
                 case Keyword::INT:
-                    cout << "int";
+                    tmp_out_file << "int";
                     break;
                 case Keyword::BOOLEAN:
-                    cout << "boolean";
+                    tmp_out_file << "boolean";
                     break;
                 case Keyword::CHAR:
-                    cout << "char";
+                    tmp_out_file << "char";
                     break;
                 case Keyword::VOID:
-                    cout << "void";
+                    tmp_out_file << "void";
                     break;
                 case Keyword::VAR:
-                    cout << "var";
+                    tmp_out_file << "var";
                     break;
                 case Keyword::STATIC:
-                    cout << "static";
+                    tmp_out_file << "static";
                     break;
                 case Keyword::FIELD:
-                    cout << "field";
+                    tmp_out_file << "field";
                     break;
                 case Keyword::LET:
-                    cout << "let";
+                    tmp_out_file << "let";
                     break;
                 case Keyword::DO:
-                    cout << "do";
+                    tmp_out_file << "do";
                     break;
                 case Keyword::IF:
-                    cout << "if";
+                    tmp_out_file << "if";
                     break;
                 case Keyword::ELSE:
-                    cout << "else";
+                    tmp_out_file << "else";
                     break;
                 case Keyword::WHILE:
-                    cout << "while";
+                    tmp_out_file << "while";
                     break;
                 case Keyword::RETURN:
-                    cout << "return";
+                    tmp_out_file << "return";
                     break;
                 case Keyword::K_TRUE:
-                    cout << "true";
+                    tmp_out_file << "true";
                     break;
                 case Keyword::K_FALSE:
-                    cout << "false";
+                    tmp_out_file << "false";
                     break;
                 case Keyword::K_NULL:
-                    cout << "null";
+                    tmp_out_file << "null";
                     break;
                 case Keyword::THIS:
-                    cout << "this";
+                    tmp_out_file << "this";
                     break;
                 default:
                     cout << "Unknown keyword(" << int(keyword) << ")" << endl;
                     exit(1);
                     break;
                 }
-                cout << " </keyword>" << endl;
+                tmp_out_file << " </keyword>" << endl;
                 break;
             }
             case TokenType::SYMBOL:
-                cout << "<symbol> " << tokenizer.symbol() << " </symbol>" << endl;
+                tmp_out_file << "<symbol> " << tokenizer.symbol() << " </symbol>" << endl;
                 break;
             case TokenType::IDENTIFIER:
-                cout << "<identifier> " << tokenizer.identifier() << " </identifier>" << endl;
+                tmp_out_file << "<identifier> " << tokenizer.identifier() << " </identifier>" << endl;
                 break;
             case TokenType::INT_CONST:
-                cout << "<integerConstant> " << tokenizer.intVal() << " </integerConstant>" << endl;
+                tmp_out_file << "<integerConstant> " << tokenizer.intVal() << " </integerConstant>" << endl;
                 break;
             case TokenType::STRING_CONST:
-                cout << "<stringConstant> " << tokenizer.stringVal() << " </stringConstant>" << endl;
+                tmp_out_file << "<stringConstant> " << tokenizer.stringVal() << " </stringConstant>" << endl;
                 break;
             default:
                 cout << "Unknown token type(" << int(type) << ")" << endl;
@@ -133,7 +143,8 @@ int Analyze(const string& file_name)
                 break;
             }
         }
-        cout << "</tokens>" << endl;
+        tmp_out_file << "</tokens>" << endl;
+        tmp_out_file.close();
     }
     else
     {
@@ -155,5 +166,6 @@ int Analyze(const string& file_name)
         //     entity = readdir(dir);
         // }
     }
+
     return 0;
 }
