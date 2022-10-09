@@ -137,54 +137,56 @@ Jacktokenizer::Jacktokenizer(const string &s)
 
         stringstream ss(current_line);
         string word;
-        string::size_type string_const_search_pos{0};
-        string string_const;
-        while (ss >> word)
+        bool found_str = false;
+        char c;
+        ss >> std::noskipws;
+        while (ss >> c)
         {
-
-            // find string constant
-            if (word.front() == '"')
+            if (!found_str)
             {
-                ss >> std::noskipws;
-                char c;
-                while (ss >> c)
+                if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+                {
+
+                    if (word.size())
+                    {
+                        tokens_.push(word);
+                        word.clear();
+                    }
+                    continue;
+                }
+
+                if (strchr(kSymbolToken.c_str(), c) != NULL)
+                {
+                    if (word.size())
+                    {
+                        tokens_.push(word);
+                        word.clear();
+                    }
+                    tokens_.push(string{c});
+                    continue;
+                }
+            }
+
+            if (c == '"')
+            {
+                if (word.size())
                 {
                     word.push_back(c);
-                    if (c == '"')
-                    {
-                        break;
-                    }
-
-                    if (c == '\r' || c =='\n')
-                    {
-                        cout << "Invalid string const, current line: " << current_line << endl;
-                        exit(1);
-                    }
+                    tokens_.push(word);
+                    word.clear();
+                    found_str = false;
+                    continue;
                 }
-                ss >> std::skipws;
+                found_str = true;
             }
 
-            // find symbols
-            string::size_type start_pos{0};
-            while (start_pos < word.size())
-            {
-                auto symbol_pos{word.find_first_of(kSymbolToken, start_pos)};
-                if (symbol_pos != string::npos)
-                {
-                    string part{word.substr(start_pos, symbol_pos - start_pos)};
-                    if (!part.empty())
-                    {
-                        tokens_.push(part);
-                    }
-                    tokens_.push(word.substr(symbol_pos, 1));
-                    start_pos = symbol_pos + 1;
-                }
-                else
-                {
-                    tokens_.push(word.substr(start_pos));
-                    break;
-                }
-            }
+            word.push_back(c);
+        }
+
+        if (found_str)
+        {
+            cout << "cannot find the other \", current_line: " << current_line << endl;
+            exit(1);
         }
     }
 }
@@ -241,18 +243,6 @@ TokenType Jacktokenizer::tokenType()
     // string constant
     if (current_token_.front() == '"' && current_token_.back() == '"')
     {
-        // if (current_token_.find_first_of("\n\"", 1, current_token_.size() - 2) != string::npos)
-        // {
-               // bug?
-        //     string test = "\"string constant\"";
-        //     cout << test.find_first_of("c", 3) << endl;
-        //     cout << "Jacktokenizer::tokenType: Invalid string constant(" << current_token_ << ")" << endl;
-        //     exit(1);
-        // }
-        // else
-        // {
-        //     return TokenType::STRING_CONST;
-        // }
         return TokenType::STRING_CONST;
     }
 

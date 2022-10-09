@@ -32,7 +32,7 @@ int Analyze(const string& file_name)
         const std::filesystem::path output(input.relative_path().replace_extension(".xml"));
         CompilationEngine engine(input, output);
 
-        const std::filesystem::path tmpout(input.relative_path().replace_extension("T.xml"));
+        const std::filesystem::path tmpout(input.relative_path().replace_filename(output.stem().concat("T.xml")));
         std::ofstream tmp_out_file(tmpout);
 
         if (!tmp_out_file)
@@ -126,8 +126,23 @@ int Analyze(const string& file_name)
                 break;
             }
             case TokenType::SYMBOL:
-                tmp_out_file << "<symbol> " << tokenizer.symbol() << " </symbol>" << endl;
+            {
+                tmp_out_file << "<symbol> ";
+                auto symbol = tokenizer.symbol();
+                if (symbol == '<') {
+                    tmp_out_file << "&lt;";
+                } else if (symbol == '>') {
+                    tmp_out_file << "&gt;";
+                } else if (symbol == '"') {
+                    tmp_out_file << "&quot;";
+                } else if (symbol == '&') {
+                    tmp_out_file << "&amp;";
+                } else {
+                    tmp_out_file << symbol;
+                }
+                tmp_out_file << " </symbol>" << endl;
                 break;
+            }
             case TokenType::IDENTIFIER:
                 tmp_out_file << "<identifier> " << tokenizer.identifier() << " </identifier>" << endl;
                 break;
