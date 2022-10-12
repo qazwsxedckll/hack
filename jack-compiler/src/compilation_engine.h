@@ -1,6 +1,8 @@
 #ifndef COMPILATION_ENGINE_H_
 #define COMPILATION_ENGINE_H_
 
+#include "jack_tokenizer.h"
+
 #include <fstream>
 
 class CompilationEngine
@@ -25,6 +27,8 @@ public:
 private:
     std::ifstream input_file_;
     std::ofstream output_file_;
+
+    Jacktokenizer tokenizer_;
 };
 
 #endif // !COMPILATION_ENGINE_H_

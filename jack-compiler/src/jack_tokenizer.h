@@ -9,6 +9,28 @@
 using std::string;
 using std::unordered_map;
 
+const string kClass = "class";
+const string kConstructor = "constructor";
+const string kFunction = "function";
+const string kMethod = "method";
+const string kField = "field";
+const string kStatic = "static";
+const string kVar = "var";
+const string kInt = "int";
+const string kChar = "char";
+const string kBoolean = "boolean";
+const string kVoid = "void";
+const string kTrue = "true";
+const string kFalse = "false";
+const string kNull = "null";
+const string kThis = "this";
+const string kLet = "let";
+const string kDo = "do";
+const string kIf = "if";
+const string kElse = "else";
+const string kWhile = "while";
+const string kReturn = "return";
+
 enum class TokenType { KEYWORD, SYMBOL, IDENTIFIER, INT_CONST, STRING_CONST };
 enum class Keyword { CLASS, METHOD, FUNCTION, CONSTRUCTOR, INT, BOOLEAN,
                 CHAR, VOID, VAR, STATIC, FIELD, LET, DO, IF, ELSE,

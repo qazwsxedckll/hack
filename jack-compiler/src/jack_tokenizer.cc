@@ -13,27 +13,27 @@ using std::endl;
 using std::regex;
 
 const TokenTypeMap Jacktokenizer::keyword_token_map = {
-    {"class", TokenType::KEYWORD},
-    {"constructor", TokenType::KEYWORD},
-    {"function", TokenType::KEYWORD},
-    {"method", TokenType::KEYWORD},
-    {"field", TokenType::KEYWORD},
-    {"static", TokenType::KEYWORD},
-    {"var", TokenType::KEYWORD},
-    {"int", TokenType::KEYWORD},
-    {"char", TokenType::KEYWORD},
-    {"boolean", TokenType::KEYWORD},
-    {"void", TokenType::KEYWORD},
-    {"true", TokenType::KEYWORD},
-    {"false", TokenType::KEYWORD},
-    {"null", TokenType::KEYWORD},
-    {"this", TokenType::KEYWORD},
-    {"let", TokenType::KEYWORD},
-    {"do", TokenType::KEYWORD},
-    {"if", TokenType::KEYWORD},
-    {"else", TokenType::KEYWORD},
-    {"while", TokenType::KEYWORD},
-    {"return", TokenType::KEYWORD}};
+    {kClass, TokenType::KEYWORD},
+    {kConstructor, TokenType::KEYWORD},
+    {kFunction, TokenType::KEYWORD},
+    {kMethod, TokenType::KEYWORD},
+    {kField, TokenType::KEYWORD},
+    {kStatic, TokenType::KEYWORD},
+    {kVar, TokenType::KEYWORD},
+    {kInt, TokenType::KEYWORD},
+    {kChar, TokenType::KEYWORD},
+    {kBoolean, TokenType::KEYWORD},
+    {kVoid, TokenType::KEYWORD},
+    {kTrue, TokenType::KEYWORD},
+    {kFalse, TokenType::KEYWORD},
+    {kNull, TokenType::KEYWORD},
+    {kThis, TokenType::KEYWORD},
+    {kLet, TokenType::KEYWORD},
+    {kDo, TokenType::KEYWORD},
+    {kIf, TokenType::KEYWORD},
+    {kElse, TokenType::KEYWORD},
+    {kWhile, TokenType::KEYWORD},
+    {kReturn, TokenType::KEYWORD}};
 
 const TokenTypeMap Jacktokenizer::symbol_token_map = {
     {"{", TokenType::SYMBOL},
@@ -57,27 +57,27 @@ const TokenTypeMap Jacktokenizer::symbol_token_map = {
     {"~", TokenType::SYMBOL}};
 
 const unordered_map<string, Keyword> Jacktokenizer::keyword_map = {
-    {"class", Keyword::CLASS},
-    {"constructor", Keyword::CONSTRUCTOR},
-    {"function", Keyword::FUNCTION},
-    {"method", Keyword::METHOD},
-    {"field", Keyword::FIELD},
-    {"static", Keyword::STATIC},
-    {"var", Keyword::VAR},
-    {"int", Keyword::INT},
-    {"char", Keyword::CHAR},
-    {"boolean", Keyword::BOOLEAN},
-    {"void", Keyword::VOID},
-    {"true", Keyword::K_TRUE},
-    {"false", Keyword::K_FALSE},
-    {"null", Keyword::K_NULL},
-    {"this", Keyword::THIS},
-    {"let", Keyword::LET},
-    {"do", Keyword::DO},
-    {"if", Keyword::IF},
-    {"else", Keyword::ELSE},
-    {"while", Keyword::WHILE},
-    {"return", Keyword::RETURN}};
+    {kClass, Keyword::CLASS},
+    {kConstructor, Keyword::CONSTRUCTOR},
+    {kFunction, Keyword::FUNCTION},
+    {kMethod, Keyword::METHOD},
+    {kField, Keyword::FIELD},
+    {kStatic, Keyword::STATIC},
+    {kVar, Keyword::VAR},
+    {kInt, Keyword::INT},
+    {kChar, Keyword::CHAR},
+    {kBoolean, Keyword::BOOLEAN},
+    {kVoid, Keyword::VOID},
+    {kTrue, Keyword::K_TRUE},
+    {kFalse, Keyword::K_FALSE},
+    {kNull, Keyword::K_NULL},
+    {kThis, Keyword::THIS},
+    {kLet, Keyword::LET},
+    {kDo, Keyword::DO},
+    {kIf, Keyword::IF},
+    {kElse, Keyword::ELSE},
+    {kWhile, Keyword::WHILE},
+    {kReturn, Keyword::RETURN}};
 
 const string kSymbolToken = "{}()[].,;+-*/&|<>=~";
 
@@ -198,8 +198,15 @@ bool Jacktokenizer::hasMoreTokens()
 
 void Jacktokenizer::advance()
 {
-    current_token_ = tokens_.front();
-    tokens_.pop();
+    if (hasMoreTokens()) {
+        current_token_ = tokens_.front();
+        tokens_.pop();
+    }
+    else
+    {
+        cout << "Jacktokenizer::advance: there are no more tokens." << endl;
+        exit(1);
+    }
 }
 
 TokenType Jacktokenizer::tokenType()

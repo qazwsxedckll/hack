@@ -27,11 +27,11 @@ int Analyze(const string& file_name)
     const std::filesystem::path input(file_name);
     if (IsJackFile(input))
     {
-        Jacktokenizer tokenizer(input);
-
         const std::filesystem::path output(input.relative_path().replace_extension(".xml"));
+
         CompilationEngine engine(input, output);
 
+        Jacktokenizer tokenizer(input);
         const std::filesystem::path tmpout(input.relative_path().replace_filename(output.stem().concat("T.xml")));
         std::ofstream tmp_out_file(tmpout);
 
