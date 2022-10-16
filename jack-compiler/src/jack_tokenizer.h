@@ -50,9 +50,9 @@ public:
     string identifier();
     int intVal();
     string stringVal();
+    string current_token() const { return current_token_; }
     ~Jacktokenizer() {}
 private:
-    string current_token() const { return current_token_; }
     static bool ValidIdentifier(const string& symbol);
 private:
     FRIEND_TEST(TokenizerTest, ValidIdentifier);

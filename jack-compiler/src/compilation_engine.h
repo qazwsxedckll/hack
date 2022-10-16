@@ -13,7 +13,7 @@ public:
     void CompileClassVarDec();
     void CompileSubroutine();
     void CompileParameterList();
-    void CompileCarDec();
+    void CompileVarDec();
     void CompileStatements();
     void CompileDo();
     void CompileLet();
@@ -25,6 +25,13 @@ public:
     void CompileExpressionList();
     ~CompilationEngine() {};
 private:
+    void CompileType(bool advance);
+    void CompileIdentifier();
+    void CompileSymbol(const char symbol);
+    void CompileKeyword(const Keyword& keyword);
+    void WrongKeyword();
+    void WrongTokenType();
+    void WrongSymbol();
     std::ifstream input_file_;
     std::ofstream output_file_;
 
