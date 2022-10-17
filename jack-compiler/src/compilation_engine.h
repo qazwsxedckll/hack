@@ -27,13 +27,15 @@ public:
 private:
     void CompileType(bool advance);
     void CompileIdentifier();
-    void CompileSymbol(const char symbol);
+    void CompileSymbol(const char symbol, bool advance);
     void CompileKeyword(const Keyword& keyword);
     void WrongKeyword();
     void WrongTokenType();
     void WrongSymbol();
     std::ifstream input_file_;
     std::ofstream output_file_;
+
+    string indent_;
 
     Jacktokenizer tokenizer_;
 };

@@ -8,6 +8,10 @@ const string kClassTag = "<class>";
 const string kClassTagEnd = "</class>";
 const string kClassVarDecTag = "<classVarDec>";
 const string kClassVarDecTagEnd = "</classVarDec>";
+const string kVarDecTag = "<varDec>";
+const string kVarDecTagEnd = "</varDec>";
+const string kParameterListTag = "<parameterList>";
+const string kParameterListTagEnd = "</parameterList>";
 const string kSubroutineDecTag = "<subroutineDec>";
 const string kSubroutineDecTagEnd = "</subroutineDec>";
 const string kKeywordTag = "<keyword> ";
@@ -48,12 +52,15 @@ void CompilationEngine::WrongSymbol()
     exit(1);
 }
 
-void CompilationEngine::CompileSymbol(const char symbol) 
+void CompilationEngine::CompileSymbol(const char symbol, bool advance)
 {
-    tokenizer_.advance();
+    if (advance)
+    {
+        tokenizer_.advance();
+    }
     if (tokenizer_.symbol() == symbol)
     {
-        output_file_ << kSymbolTag << tokenizer_.current_token() << kSymbolTagEnd << endl;
+        output_file_ << indent_ << kSymbolTag << tokenizer_.current_token() << kSymbolTagEnd << endl;
     }
     else
     {
@@ -67,7 +74,7 @@ void CompilationEngine::CompileKeyword(const Keyword& keyword)
     tokenizer_.advance();
     if (tokenizer_.keyWord() == keyword)
     {
-        output_file_ << kKeywordTag << tokenizer_.current_token() << kKeywordTagEnd << endl;
+        output_file_ << indent_ << kKeywordTag << tokenizer_.current_token() << kKeywordTagEnd << endl;
     }
     else
     {
@@ -81,7 +88,7 @@ void CompilationEngine::CompileIdentifier()
     tokenizer_.advance();
     if (tokenizer_.tokenType() == TokenType::IDENTIFIER)
     {
-        output_file_ << kIdentifierTag << tokenizer_.identifier() << kIdentifierTagEnd << endl;
+        output_file_ << indent_ << kIdentifierTag << tokenizer_.identifier() << kIdentifierTagEnd << endl;
     }
     else
     {
@@ -100,15 +107,15 @@ void CompilationEngine::CompileType(bool advance)
     {
         if (tokenizer_.keyWord() == Keyword::INT)
         {
-            output_file_ << kKeywordTag << kInt << kKeywordTagEnd << endl;
+            output_file_ << indent_ << kKeywordTag << kInt << kKeywordTagEnd << endl;
         }
         else if (tokenizer_.keyWord() == Keyword::CHAR)
         {
-            output_file_ << kKeywordTag << kChar << kKeywordTagEnd << endl;
+            output_file_ << indent_ << kKeywordTag << kChar << kKeywordTagEnd << endl;
         }
         else if (tokenizer_.keyWord() == Keyword::BOOLEAN)
         {
-            output_file_ << kKeywordTag << kBoolean << kKeywordTagEnd << endl;
+            output_file_ << indent_ << kKeywordTag << kBoolean << kKeywordTagEnd << endl;
         }
         else
         {
@@ -117,7 +124,7 @@ void CompilationEngine::CompileType(bool advance)
     }
     else if (tokenizer_.tokenType() == TokenType::IDENTIFIER)
     {
-        output_file_ << kIdentifierTag << tokenizer_.identifier() << kIdentifierTagEnd << endl;
+        output_file_ << indent_ << kIdentifierTag << tokenizer_.identifier() << kIdentifierTagEnd << endl;
     }
     else
     {
@@ -127,7 +134,8 @@ void CompilationEngine::CompileType(bool advance)
 
 void CompilationEngine::CompileClass() 
 {
-    output_file_ << kClassTag << endl;
+    output_file_ << indent_ << kClassTag << endl;
+    indent_ += "  ";
 
     // 'class'
     CompileKeyword(Keyword::CLASS);
@@ -136,7 +144,7 @@ void CompilationEngine::CompileClass()
     CompileIdentifier();
 
     // '{'
-    CompileSymbol('{');
+    CompileSymbol('{', true);
 
     CompileClassVarDec();
     CompileSubroutine();
@@ -144,22 +152,24 @@ void CompilationEngine::CompileClass()
     // tokenizer_.advance();
     // assert(tokenizer_.tokenType() == TokenType::SYMBOL && tokenizer_.symbol() == '}');
     // output_file_ << kSymbolTag << tokenizer_.symbol() << kSymbolTagEnd << endl;
+    indent_ = indent_.substr(0, indent_.length() - 2);
     output_file_ << kClassTagEnd << endl;
 }
 
 void CompilationEngine::CompileClassVarDec()
 {
-    output_file_ << kClassVarDecTag << endl;
+    output_file_ << indent_ << kClassVarDecTag << endl;
+    indent_ += "  ";
     
     // ('static' | 'field')
     tokenizer_.advance();
     if (tokenizer_.keyWord() == Keyword::STATIC)
     {
-        output_file_ << kKeywordTag << kStatic << kKeywordTagEnd << endl;
+        output_file_ << indent_ << kKeywordTag << kStatic << kKeywordTagEnd << endl;
     }
     else if (tokenizer_.keyWord() == Keyword::FIELD)
     {
-        output_file_ << kKeywordTag << kField << kKeywordTagEnd << endl;
+        output_file_ << indent_ << kKeywordTag << kField << kKeywordTagEnd << endl;
     }
     else
     {
@@ -180,12 +190,12 @@ void CompilationEngine::CompileClassVarDec()
         {
             if (tokenizer_.symbol() == ',')
             {
-                output_file_ << kSymbolTag << tokenizer_.symbol() << kSymbolTagEnd << endl;
+                output_file_ << indent_ << kSymbolTag << tokenizer_.symbol() << kSymbolTagEnd << endl;
                 CompileIdentifier();
             }
             else if (tokenizer_.symbol() == ';')
             {
-                output_file_ << kSymbolTag << tokenizer_.symbol() << kSymbolTagEnd << endl;
+                output_file_ << indent_ << kSymbolTag << tokenizer_.symbol() << kSymbolTagEnd << endl;
                 break;
             }
             else
@@ -195,26 +205,28 @@ void CompilationEngine::CompileClassVarDec()
         }
     }
 
-    output_file_ << kClassVarDecTagEnd << endl;
+    indent_ = indent_.substr(0, indent_.length() - 2);
+    output_file_ << indent_ << kClassVarDecTagEnd << endl;
 }
 
 void CompilationEngine::CompileSubroutine()
 {
-    output_file_ << kSubroutineDecTag << endl;
+    output_file_ << indent_ << kSubroutineDecTag << endl;
+    indent_ += "  ";
 
     // ('constructor' | 'function' | 'method')
     tokenizer_.advance();
     if (tokenizer_.keyWord() == Keyword::CONSTRUCTOR)
     {
-        output_file_ << kKeywordTag << kConstructor << kKeywordTagEnd << endl;
+        output_file_ << indent_ << kKeywordTag << kConstructor << kKeywordTagEnd << endl;
     }
     else if (tokenizer_.keyWord() == Keyword::FUNCTION)
     {
-        output_file_ << kKeywordTag << kFunction << kKeywordTagEnd << endl;
+        output_file_ << indent_ << kKeywordTag << kFunction << kKeywordTagEnd << endl;
     }
     else if (tokenizer_.keyWord() == Keyword::METHOD)
     {
-        output_file_ << kKeywordTag << kMethod << kKeywordTagEnd << endl;
+        output_file_ << indent_ << kKeywordTag << kMethod << kKeywordTagEnd << endl;
     }
     else
     {
@@ -227,7 +239,7 @@ void CompilationEngine::CompileSubroutine()
     {
         if (tokenizer_.keyWord() == Keyword::VOID)
         {
-            output_file_ << kKeywordTag << kVoid << kKeywordTagEnd << endl;
+            output_file_ << indent_ << kKeywordTag << kVoid << kKeywordTagEnd << endl;
         }
         else
         {
@@ -243,36 +255,81 @@ void CompilationEngine::CompileSubroutine()
     CompileIdentifier();
 
     // '('
-    CompileSymbol('(');
+    CompileSymbol('(', true);
 
-    tokenizer_.advance();
-    if (tokenizer_.tokenType() != TokenType::SYMBOL)
-    {
-        // parameterList
-        CompileParameterList();
-    }
+    // parameterList
+    CompileParameterList();
 
     // ')'
-    CompileSymbol(')');
+    CompileSymbol(')', false);
 
-    output_file_ << kSubroutineDecTagEnd << endl;
+    // subroutineBody: '{' varDec* statements '}'
+    CompileSymbol('{', true);
+    CompileVarDec();
+    CompileSymbol('}', true);
+
+
+    indent_ = indent_.substr(0, indent_.length() - 2);
+    output_file_ << indent_ << kSubroutineDecTagEnd << endl;
 }
 
 void CompilationEngine::CompileParameterList()
 {
+    output_file_ << indent_ << kParameterListTag << endl;
+    indent_ += "  ";
+
+    tokenizer_.advance();
+    if (tokenizer_.tokenType() != TokenType::SYMBOL)
+    {
+        CompileType(true);
+        CompileIdentifier();
+        while (true)
+        {
+            tokenizer_.advance();
+            if (tokenizer_.symbol() == ',')
+            {
+                output_file_ << kSymbolTag << tokenizer_.current_token() << kSymbolTagEnd << endl;
+                CompileType(true);
+                CompileIdentifier();
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    indent_ = indent_.substr(0, indent_.length() - 2);
+    output_file_ << indent_ << kParameterListTagEnd << endl;
+}
+
+void CompilationEngine::CompileVarDec()
+{
+    output_file_ << indent_ << kVarDecTag << endl;
+    indent_ += "  ";
+
+    // 'var'
+    CompileKeyword(Keyword::VAR);
+    // type
     CompileType(true);
+    // varName
     CompileIdentifier();
+    // (',' varName)*
     while (true)
     {
         tokenizer_.advance();
         if (tokenizer_.symbol() == ',')
         {
             output_file_ << kSymbolTag << tokenizer_.current_token() << kSymbolTagEnd << endl;
+            CompileIdentifier();
         }
         else
         {
-            cout << "want symbol: " << ',' << endl;
-            WrongSymbol();
+            break;
         }
     }
+    CompileSymbol(';', false);
+
+    indent_ = indent_.substr(0, indent_.length() - 2);
+    output_file_ << indent_ << kVarDecTagEnd << endl;
 }
