@@ -25,9 +25,9 @@ public:
     void CompileExpressionList();
     ~CompilationEngine() {};
 private:
-    void CompileType(bool advance);
+    void CompileType();
     void CompileIdentifier();
-    void CompileSymbol(const char symbol, bool advance);
+    void CompileSymbol(const char symbol);
     void CompileKeyword(const Keyword& keyword);
     void WrongKeyword();
     void WrongTokenType();
