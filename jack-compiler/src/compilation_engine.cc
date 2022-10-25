@@ -375,8 +375,7 @@ void CompilationEngine::CompileStatements()
             }
             else if (tokenizer_.keyWord() == Keyword::IF)
             {
-                // CompileIf();
-                break;
+                CompileIf();
             }
             else if (tokenizer_.keyWord() == Keyword::WHILE)
             {
@@ -516,6 +515,35 @@ void CompilationEngine::CompileIf()
 {
     output_file_ << indent_ << kIfStatementTag << endl;
     indent_ += "  ";
+
+    // 'if'
+    CompileKeyword(Keyword::IF);
+    // '('
+    CompileSymbol('(');
+    // expression
+    CompileExpression();
+    // ')'
+    CompileSymbol(')');
+    // '{'
+    CompileSymbol('{');
+    // statements
+    CompileStatements();
+    // '}'
+    CompileSymbol('}');
+
+    // ('else' '{' statements '}')?
+    if (tokenizer_.tokenType() == TokenType::KEYWORD
+    && tokenizer_.keyWord() == Keyword::ELSE)
+    {
+        // else
+        CompileKeyword(Keyword::ELSE);
+        // '{'
+        CompileSymbol('{');
+        // statements
+        CompileStatements();
+        // '}'
+        CompileSymbol('}');
+    }
 
     indent_ = indent_.substr(0, indent_.length() - 2);
     output_file_ << indent_ << kIfStatementTagEnd << endl;
