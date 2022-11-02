@@ -32,6 +32,8 @@ const string kReturnStatementTag = "<returnStatement> ";
 const string kReturnStatementTagEnd = "</returnStatement>";
 const string kIfStatementTag = "<ifStatement> ";
 const string kIfStatementTagEnd = "</ifStatement>";
+const string kWhileStatementTag = "<whileStatement> ";
+const string kWhileStatementTagEnd = "</whileStatement>";
 
 const string kKeywordTag = "<keyword> ";
 const string kKeywordTagEnd = " </keyword>";
@@ -180,7 +182,16 @@ void CompilationEngine::CompileClass()
     }
 
     // '}'
-    CompileSymbol('}');
+    if (tokenizer_.symbol() == '}')
+    {
+        output_file_ << indent_ << kSymbolTag << tokenizer_.current_token() << kSymbolTagEnd << endl;
+    }
+    else
+    {
+        cout << "want symbol: " << '}' << endl;
+        WrongSymbol();
+    }
+
     indent_ = indent_.substr(0, indent_.length() - 2);
     output_file_ << kClassTagEnd << endl;
 }
@@ -315,19 +326,11 @@ void CompilationEngine::CompileParameterList()
     {
         CompileType();
         CompileIdentifier();
-        while (true)
+        while (tokenizer_.symbol() == ',')
         {
-            if (tokenizer_.symbol() == ',')
-            {
-                output_file_ << kSymbolTag << tokenizer_.current_token() << kSymbolTagEnd << endl;
-                tokenizer_.advance();
-                CompileType();
-                CompileIdentifier();
-            }
-            else
-            {
-                break;
-            }
+            CompileSymbol(',');
+            CompileType();
+            CompileIdentifier();
         }
     }
 
@@ -379,8 +382,7 @@ void CompilationEngine::CompileStatements()
             }
             else if (tokenizer_.keyWord() == Keyword::WHILE)
             {
-                // CompileWhile();
-                break;
+                CompileWhile();
             }
             else if (tokenizer_.keyWord() == Keyword::DO)
             {
@@ -481,12 +483,30 @@ void CompilationEngine::CompileLet()
 
     indent_ = indent_.substr(0, indent_.length() - 2);
     output_file_ << indent_ << kLetStatementTagEnd << endl;
-
 }
 
 void CompilationEngine::CompileWhile()
 {
+    output_file_ << indent_ << kWhileStatementTag << endl;
+    indent_ += "  ";
 
+    // 'while'
+    CompileKeyword(Keyword::WHILE);
+    // '('
+    CompileSymbol('(');
+    // expression
+    CompileExpression();
+    // ')'
+    CompileSymbol(')');
+    // '{'
+    CompileSymbol('{');
+    // statements
+    CompileStatements();
+    // '}'
+    CompileSymbol('}');
+
+    indent_ = indent_.substr(0, indent_.length() - 2);
+    output_file_ << indent_ << kWhileStatementTagEnd << endl;
 }
 
 void CompilationEngine::CompileReturn()
@@ -556,6 +576,20 @@ void CompilationEngine::CompileExpression()
 
     // term (op term)*
     CompileTerm();
+    while (tokenizer_.tokenType() == TokenType::SYMBOL &&
+        (tokenizer_.symbol() == '+' ||
+         tokenizer_.symbol() == '-' ||
+         tokenizer_.symbol() == '*' ||
+         tokenizer_.symbol() == '/' ||
+         tokenizer_.symbol() == '&' ||
+         tokenizer_.symbol() == '|' ||
+         tokenizer_.symbol() == '<' ||
+         tokenizer_.symbol() == '>' ||
+         tokenizer_.symbol() == '='))
+    {
+        CompileSymbol(tokenizer_.symbol());
+        CompileTerm();
+    }
 
     indent_ = indent_.substr(0, indent_.length() - 2);
     output_file_ << indent_ << kExpressionTagEnd << endl;
@@ -566,7 +600,22 @@ void CompilationEngine::CompileTerm()
     output_file_ << indent_ << kTermTag << endl;
     indent_ += "  ";
 
-    CompileIdentifier();
+    if (tokenizer_.tokenType() == TokenType::INT_CONST)
+    {
+
+    }
+    else if (tokenizer_.tokenType() == TokenType::STRING_CONST)
+    {
+
+    }
+    else if (tokenizer_.tokenType() == TokenType::KEYWORD)
+    {
+        CompileKeyword(tokenizer_.keyWord());
+    }
+    else if (tokenizer_.tokenType() == TokenType::IDENTIFIER)
+    {
+        CompileIdentifier();
+    }
 
     indent_ = indent_.substr(0, indent_.length() - 2);
     output_file_ << indent_ << kTermTagEnd << endl;
@@ -576,6 +625,20 @@ void CompilationEngine::CompileExpressionList()
 {
     output_file_ << indent_ << kExpressionListTag << endl;
     indent_ += "  ";
+
+    if (!(tokenizer_.tokenType() == TokenType::SYMBOL &&
+    tokenizer_.symbol() == ')'))
+    {
+        CompileExpression();
+
+        while (tokenizer_.tokenType() == TokenType::SYMBOL &&
+                tokenizer_.symbol() == ',')
+        {
+            CompileSymbol(',');
+            CompileExpression();
+        }
+    }
+
 
     indent_ = indent_.substr(0, indent_.length() - 2);
     output_file_ << indent_ << kExpressionListTagEnd << endl;
